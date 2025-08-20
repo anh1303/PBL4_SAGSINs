@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+pydantic
+motor           # async MongoDB client
+python-dotenv   # optional: load env vars
+flask             # optional: for Flask integration
