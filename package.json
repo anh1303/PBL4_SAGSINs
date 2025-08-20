@@ -1,0 +1,30 @@
+{
+  "name": "pbl4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anh1303/PBL4_SAGSINs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anh1303/PBL4_SAGSINs/issues"
+  },
+  "homepage": "https://github.com/anh1303/PBL4_SAGSINs#readme",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "express": "^5.1.0",
+    "socket": "^1.0.92",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  }
+}
