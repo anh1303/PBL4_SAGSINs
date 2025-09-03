@@ -1,0 +1,281 @@
+Tuyệt! Mình sẽ viết lại **hướng dẫn toàn diện từ A → Z** cho đề tài **Generative AI for Collaborative Communication in SAGSINs**, lần này **chắc chắn bao gồm Ground Station**, đồng thời **EndDevice là thiết bị người dùng gửi request**.
+
+---
+
+# HƯỚNG DẪN PHÁT TRIỂN ĐỀ TÀI SAGSINs + GenAI
+
+## 1️⃣ Mục tiêu
+
+* Cải thiện **sự hợp tác giữa các thành phần mạng**: Satellite, UAV, Ground Station, Sea Station, EndDevice (user) để **giảm độ trễ** và **tối ưu băng thông**.
+* Sử dụng **Generative AI / Reinforcement Learning** để dự đoán trạng thái các node, đề xuất **tuyến đường tối ưu**, phân bổ băng thông và năng lượng.
+* Triển khai **môi trường client-server** để thử nghiệm và lưu dữ liệu lịch sử vào **MongoDB**.
+
+---
+
+## 2️⃣ Kiến trúc hệ thống
+
+### 2.1 Các thành phần chính
+
+| Thành phần                  | Vai trò                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| **EndDevice (User Device)** | Thiết bị của người dùng muốn kết nối vào mạng, gửi yêu cầu tới mạng SAGSINs        |
+| **Satellite (SAT)**         | Relay dữ liệu đa tầng, kết nối UAV, Ground Station và Sea Station                  |
+| **UAV**                     | Relay dữ liệu từ EndDevice hoặc SeaStation tới Satellite/Ground Station            |
+| **Ground Station**          | Điểm trung tâm xử lý dữ liệu, điều phối UAV và quản lý luồng thông tin từ các node |
+| **Sea Station / Ship**      | Điểm truy cập từ biển, kết nối với mạng SAGSINs                                    |
+| **GenAI Service**           | Dự đoán trạng thái mạng, tạo chiến lược hợp tác và tối ưu hóa latency/băng thông   |
+| **MongoDB**                 | Lưu lịch sử request và decision để phục vụ huấn luyện RL hoặc phân tích            |
+
+---
+
+### 2.2 Luồng dữ liệu (Sơ đồ hoạt động)
+
+```text
+     EndDevice (User) --> UAV --> Satellite --> Ground Station
+           |                         ^
+           |                         |
+           +-------------------------+
+           |
+           v
+      Sea Station (biển)
+
+Node.js Socket Server <---> Python GenAI Service
+                           |
+                           v
+                        MongoDB (request + decision history)
+```
+
+**Giải thích sơ đồ:**
+
+1. **EndDevice (user)** gửi yêu cầu kết nối hoặc dữ liệu tới **UAV** hoặc trực tiếp tới **SeaStation / GroundStation**.
+2. **UAV** nhận và relay lên **Satellite**, sau đó tới **GroundStation**.
+3. **Node.js server** nhận request từ EndDevice và gọi **Python GenAI service** để phân bổ băng thông, chọn tuyến đường, tối ưu latency.
+4. **GenAI service** trả quyết định → Node.js server phát lại cho EndDevice.
+5. **MongoDB** lưu request và decision để phân tích hoặc huấn luyện AI.
+
+---
+
+## 3️⃣ Các class đại diện trong Python
+
+```python
+from typing import List, Tuple
+from datetime import datetime, timezone
+
+# -------------------
+# EndDevice (User)
+# -------------------
+class EndDevice:
+    """
+    Thiết bị người dùng muốn kết nối vào mạng.
+    """
+    def __init__(self, device_id: str, position: Tuple[float, float]):
+        self.device_id = device_id
+        self.position = position
+        self.status = "idle"  # 'idle', 'requesting', 'connected'
+        self.current_request = None
+
+    def create_request(self, payload_size: float):
+        request = {
+            "user_id": self.device_id,
+            "position": self.position,
+            "payload_size": payload_size,
+            "timestamp": datetime.now(timezone.utc)
+        }
+        self.current_request = request
+        self.status = "requesting"
+        return request
+
+# -------------------
+# Satellite
+# -------------------
+class Satellite:
+    def __init__(self, sat_id: str, position: Tuple[float, float, float], speed: float):
+        self.sat_id = sat_id
+        self.position = position
+        self.speed = speed
+        self.status = "idle"
+
+# -------------------
+# UAV
+# -------------------
+class UAV:
+    def __init__(self, uav_id: str, position: Tuple[float, float, float], speed: float):
+        self.uav_id = uav_id
+        self.position = position
+        self.speed = speed
+        self.status = "idle"
+
+# -------------------
+# Ground Station
+# -------------------
+class GroundStation:
+    def __init__(self, station_id: str, position: Tuple[float, float]):
+        self.station_id = station_id
+        self.position = position
+        self.status = "idle"
+
+# -------------------
+# Sea Station
+# -------------------
+class SeaStation:
+    def __init__(self, sea_id: str, position: Tuple[float, float]):
+        self.sea_id = sea_id
+        self.position = position
+        self.status = "idle"
+```
+
+* Mỗi node có trạng thái: `idle`, `active`, `busy`.
+* GenAI service sẽ dùng trạng thái này để quyết định đường đi, phân bổ băng thông, hoặc chọn node relay.
+
+---
+
+## 4️⃣ Triển khai GenAI Service (Flask)
+
+* Endpoint `/allocate` nhận request từ Node.js server, tạo quyết định tạm (heuristic / fake AI) và lưu MongoDB.
+
+```python
+from flask import Flask, request, jsonify
+from pymongo import MongoClient
+import os
+from datetime import datetime, timezone
+import uuid
+
+app = Flask(__name__)
+
+# MongoDB
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME", "sagsins")
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+requests_col = db["client_requests"]
+decisions_col = db["ai_decisions"]
+
+@app.route("/allocate", methods=["POST"])
+def allocate():
+    data = request.get_json()
+    request_id = str(uuid.uuid4())
+    timestamp = datetime.now(timezone.utc)
+
+    # Save request
+    request_doc = {"request_id": request_id, "request": data, "timestamp": timestamp}
+    requests_col.insert_one(request_doc)
+
+    # Fake AI decision
+    decision = {
+        "route": ["UAV1", "Satellite1", "GroundStation1"],
+        "expected_latency_ms": 150.0,
+        "allocated_bandwidth_kbps": 200
+    }
+
+    decision_doc = {"request_id": request_id, "decision": decision, "timestamp": timestamp, "status": "inferred"}
+    decisions_col.insert_one(decision_doc)
+
+    return jsonify({"request_id": request_id, "decision": decision, "status": "success"})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+```
+
+---
+
+## 5️⃣ Node.js Socket Server
+
+* Nhận **user\_request** từ EndDevice (client).
+* Gọi `/allocate` của Flask GenAI service.
+* Trả **server\_response** về client.
+
+```js
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const axios = require("axios");
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+    console.log("Client connected:", socket.id);
+
+    socket.on("user_request", async (data) => {
+        console.log("Received user_request:", data);
+        try {
+            const response = await axios.post("http://127.0.0.1:5000/allocate", data, { timeout: 15000 });
+            socket.emit("server_response", response.data);
+        } catch (error) {
+            console.error("Error calling Python service:", error.message);
+            socket.emit("server_response", { error: "Python service unavailable or timeout" });
+        }
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Client disconnected:", socket.id);
+    });
+});
+
+server.listen(3000, () => console.log("Socket server running on port 3000"));
+```
+
+---
+
+## 6️⃣ Client Simulator (EndDevice)
+
+```js
+const { io } = require("socket.io-client");
+const socket = io("http://localhost:3000");
+
+const requestPayload = {
+    user_id: "device_01",
+    position: [10.5, 20.3],
+    payload_size: 1500
+};
+
+socket.emit("user_request", requestPayload);
+
+socket.on("server_response", (data) => {
+    console.log("Response from server:", data);
+});
+```
+
+---
+
+## 7️⃣ Phát triển từ A → Z
+
+1. Thiết lập môi trường Python / Node.js / MongoDB.
+2. Tạo class đại diện các node trong SAGSINs (EndDevice, UAV, Satellite, GroundStation, SeaStation).
+3. Triển khai **Flask GenAI service** để nhận request và tạo quyết định.
+4. Triển khai **Node.js server** với Socket.io.
+5. Viết **client simulator** mô phỏng EndDevice gửi request.
+6. Lưu lịch sử request + decision vào MongoDB.
+7. Sau khi setup xong, thay **fake AI** bằng **Generative AI / RL** để tối ưu latency, băng thông, và đường đi.
+
+---
+
+## 8️⃣ Sơ đồ tóm tắt (mới)
+
+```text
+       EndDevice (User)
+             |
+             v
+          UAV(s)
+             |
+             v
+        Satellite(s)
+             |
+             v
+      Ground Station(s)
+             ^
+             |
+       Sea Station(s)
+
+Node.js Socket Server <---> Python GenAI Service
+                           |
+                           v
+                        MongoDB
+```
+
+---
+
+Nếu bạn muốn, bước tiếp theo tôi có thể **tạo một project mẫu hoàn chỉnh**, chạy được **end-to-end**: Node.js client/server + Flask AI service + MongoDB logging, với các class mạng đã định nghĩa.
+
+Bạn có muốn tôi làm luôn không?

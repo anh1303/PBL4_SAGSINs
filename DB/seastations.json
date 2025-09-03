@@ -1,0 +1,38 @@
+[
+  {
+    "ss_id": "SS_BienDong",
+    "location": { "lat": 15.0, "lon": 112.0 },
+    "coverage_radius_km": 800,
+    "resources": { "cpu": 400, "bandwidth": 1200, "power": 600 },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "ss_id": "SS_IndianOcean",
+    "location": { "lat": -5.0, "lon": 75.0 },
+    "coverage_radius_km": 1000,
+    "resources": { "cpu": 500, "bandwidth": 1500, "power": 700 },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "ss_id": "SS_Atlantic",
+    "location": { "lat": 20.0, "lon": -40.0 },
+    "coverage_radius_km": 1000,
+    "resources": { "cpu": 500, "bandwidth": 1500, "power": 700 },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "ss_id": "SS_Pacific",
+    "location": { "lat": 0.0, "lon": -160.0 },
+    "coverage_radius_km": 1200,
+    "resources": { "cpu": 600, "bandwidth": 1800, "power": 800 },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  }
+]
