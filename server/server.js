@@ -1,50 +1,46 @@
 // server.js
-const express = require("express");
-const http = require("http");
 const { Server } = require("socket.io");
-const axios = require("axios");
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*" } // cho phép mọi client connect (có thể giới hạn theo domain sau)
-});
-
-// Khi client kết nối
-io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
-
-    // Nhận yêu cầu từ client
-    socket.on("user_request", async (data) => {
-        console.log("Received user_request:", data);
-
-        try {
-            // Gọi sang Python AI service
-            const response = await axios.post(
-                "http://127.0.0.1:5000/allocate",
-                data,
-                { timeout: 5000 } // timeout 5s tránh treo
-            );
-
-            // Gửi phản hồi lại cho đúng client
-            socket.emit("server_response", response.data);
-
-        } catch (error) {
-            console.error("Error calling Python service:", error.message);
-            socket.emit("server_response", {
-                error: "Python service unavailable or timeout"
-            });
-        }
-    });
-
-    // Khi client ngắt kết nối
-    socket.on("disconnect", (reason) => {
-        console.log("Client disconnected:", socket.id, "Reason:", reason);
-    });
-});
-
-// Chạy server Node.js
 const PORT = 3000;
-server.listen(PORT, () => {
-    console.log(`Node.js Socket.io server running on port ${PORT}`);
+const ACCEPT_RATE = 0.3; // 30% chance to accept connection
+const HEARTBEAT_INTERVAL = 5000; // ms
+
+// Create Socket.io server
+const io = new Server(PORT, {
+  cors: { origin: "*" },
+  pingInterval: 10000,
+  pingTimeout: 5000,
+});
+
+console.log(`🚀 Server listening on port ${PORT}`);
+
+// Handle connections
+io.on("connection", (socket) => {
+  const { targetId } = socket.handshake.query;
+
+  // Decide immediately whether to accept or ignore
+  const accepted = Math.random() < ACCEPT_RATE;
+
+  if (accepted) {
+    console.log(`✅ Accepted connection for targetId=${targetId}`);
+    socket.emit("connectionResult", "accepted");
+
+    // Keep socket alive: send periodic heartbeat messages
+    const intervalId = setInterval(() => {
+      if (socket.connected) {
+        socket.emit("heartbeat", { msg: "ping", timestamp: Date.now() });
+      } else {
+        clearInterval(intervalId);
+      }
+    }, HEARTBEAT_INTERVAL);
+
+  } else {
+    // Reject silently: do not emit anything
+    // Disconnect immediately to free server resources
+    socket.disconnect(true);
+  }
+
+  socket.on("disconnect", () => {
+    console.log(`🔌 Client disconnected: socketId=${socket.id}`);
+  });
 });

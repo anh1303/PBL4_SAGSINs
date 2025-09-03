@@ -1,0 +1,130 @@
+[
+  {
+    "gs_id": "GS_Hanoi",
+    "location": {
+      "lat": 21.0285,
+      "lon": 105.8542
+    },
+    "coverage_radius_km": 2500,
+    "resources": {
+      "cpu": 800,
+      "bandwidth": 2500,
+      "power": 1200
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_HCM",
+    "location": {
+      "lat": 10.7769,
+      "lon": 106.7009
+    },
+    "coverage_radius_km": 2500,
+    "resources": {
+      "cpu": 800,
+      "bandwidth": 2500,
+      "power": 1200
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_Tokyo",
+    "location": {
+      "lat": 35.6895,
+      "lon": 139.6917
+    },
+    "coverage_radius_km": 3000,
+    "resources": {
+      "cpu": 1000,
+      "bandwidth": 3000,
+      "power": 1500
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_India",
+    "location": {
+      "lat": 28.6139,
+      "lon": 77.209
+    },
+    "coverage_radius_km": 2500,
+    "resources": {
+      "cpu": 900,
+      "bandwidth": 2800,
+      "power": 1300
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_Dubai",
+    "location": {
+      "lat": 25.276987,
+      "lon": 55.296249
+    },
+    "coverage_radius_km": 2500,
+    "resources": {
+      "cpu": 900,
+      "bandwidth": 2800,
+      "power": 1400
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_Frankfurt",
+    "location": {
+      "lat": 50.1109,
+      "lon": 8.6821
+    },
+    "coverage_radius_km": 3000,
+    "resources": {
+      "cpu": 1200,
+      "bandwidth": 3500,
+      "power": 1600
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_NewYork",
+    "location": {
+      "lat": 40.7128,
+      "lon": -74.006
+    },
+    "coverage_radius_km": 3000,
+    "resources": {
+      "cpu": 1200,
+      "bandwidth": 3500,
+      "power": 1600
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  },
+  {
+    "gs_id": "GS_LA",
+    "location": {
+      "lat": 34.0522,
+      "lon": -118.2437
+    },
+    "coverage_radius_km": 3000,
+    "resources": {
+      "cpu": 1200,
+      "bandwidth": 3500,
+      "power": 1600
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+  }
+]

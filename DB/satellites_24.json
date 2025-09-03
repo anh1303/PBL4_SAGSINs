@@ -1,0 +1,962 @@
+[
+  {
+    "satellite_id": "LEO-01",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 0.0,
+      "lon": -180,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 0,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 7500.0,
+      "vy": 0.0,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-02",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 18.54,
+      "lon": -162,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 18,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 4052.27,
+      "vy": 6311.03,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-03",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 35.27,
+      "lon": -144,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 36,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -3121.1,
+      "vy": 6819.73,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-04",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 48.54,
+      "lon": -126,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 54,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -7424.94,
+      "vy": 1058.4,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-05",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 57.06,
+      "lon": -108,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 72,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -4902.33,
+      "vy": -5676.02,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-06",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 60.0,
+      "lon": -90,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 90,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 2127.47,
+      "vy": -7191.93,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-07",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 57.06,
+      "lon": -72,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 108,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 7201.28,
+      "vy": -2095.62,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-08",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 48.54,
+      "lon": -54,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 126,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 5654.27,
+      "vy": 4927.4,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-09",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 35.27,
+      "lon": -36,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 144,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -1091.25,
+      "vy": 7420.19,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-10",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 18.54,
+      "lon": -18,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 162,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -6833.48,
+      "vy": 3090.89,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-11",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 0.0,
+      "lon": 0,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 180,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -6293.04,
+      "vy": -4080.16,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-12",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -18.54,
+      "lon": 18,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 198,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 33.19,
+      "vy": -7499.93,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-13",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -35.27,
+      "lon": 36,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 216,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 6328.9,
+      "vy": -4024.3,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-14",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -48.54,
+      "lon": 54,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 234,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 6805.85,
+      "vy": 3151.25,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-15",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -57.06,
+      "lon": 72,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 252,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 1025.53,
+      "vy": 7429.56,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-16",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -60.0,
+      "lon": 90,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 270,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -5697.66,
+      "vy": 4877.16,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-17",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -57.06,
+      "lon": 108,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 288,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -7182.45,
+      "vy": -2159.27,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-18",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -48.54,
+      "lon": 126,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 306,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": -2063.73,
+      "vy": -7210.48,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-19",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -35.27,
+      "lon": 144,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 324,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 4952.38,
+      "vy": -5632.4,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "LEO-20",
+    "type": "LEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": -18.54,
+      "lon": 162,
+      "alt": 550000
+    },
+    "orbit": {
+      "inclination": 53.0,
+      "raan": 342,
+      "period": 5400
+    },
+    "velocity": {
+      "vx": 7415.28,
+      "vy": 1124.08,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 100.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 1000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 32768,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "GEO-01",
+    "type": "GEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 0.0,
+      "lon": -180,
+      "alt": 35786000
+    },
+    "orbit": {
+      "inclination": 0.0,
+      "raan": 0,
+      "period": 86164
+    },
+    "velocity": {
+      "vx": 0.0,
+      "vy": 0.0,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 200.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 20000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 65536,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "GEO-02",
+    "type": "GEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 0.0,
+      "lon": -90,
+      "alt": 35786000
+    },
+    "orbit": {
+      "inclination": 0.0,
+      "raan": 90,
+      "period": 86164
+    },
+    "velocity": {
+      "vx": 0.0,
+      "vy": 0.0,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 200.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 20000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 65536,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "GEO-03",
+    "type": "GEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 0.0,
+      "lon": 0,
+      "alt": 35786000
+    },
+    "orbit": {
+      "inclination": 0.0,
+      "raan": 180,
+      "period": 86164
+    },
+    "velocity": {
+      "vx": 0.0,
+      "vy": 0.0,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 200.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 20000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 65536,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  },
+  {
+    "satellite_id": "GEO-04",
+    "type": "GEO",
+    "last_update": "2025-09-03T02:37:36.009733Z",
+    "position": {
+      "lat": 0.0,
+      "lon": 90,
+      "alt": 35786000
+    },
+    "orbit": {
+      "inclination": 0.0,
+      "raan": 270,
+      "period": 86164
+    },
+    "velocity": {
+      "vx": 0.0,
+      "vy": 0.0,
+      "vz": 0.0
+    },
+    "status": "ACTIVE",
+    "resources": {
+      "cpu": {
+        "max": 200.0,
+        "current_used": 0.0
+      },
+      "bandwidth": {
+        "max": 5000,
+        "current_used": 0
+      },
+      "power": {
+        "max": 20000,
+        "current_used": 0
+      },
+      "memory": {
+        "max": 65536,
+        "current_used": 0
+      }
+    },
+    "connections": []
+  }
+]
