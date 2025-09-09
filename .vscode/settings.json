@@ -1,4 +1,8 @@
-// {
+{
+    "python.analysis.extraPaths": [
+        "./Classes"
+    ]
+} // {
 //     "python.defaultInterpreterPath": "D:\\coding\\PBL4\\sag_env\\Scripts\\python.exe",
 //     "terminal.integrated.profiles.windows": {
 //         "Command Prompt": {
