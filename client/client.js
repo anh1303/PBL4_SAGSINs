@@ -4,6 +4,7 @@ const { io } = require("socket.io-client");
 
 const PYTHON_SERVICE_URL = "http://localhost:8000/scan";
 const SERVER_PORT = 3000; // The socket server port
+const SERVER_IP = "http://10.238.134.39:3000"
 
 // Generate random test input
 const ServiceType = {
@@ -157,7 +158,11 @@ async function scanVisible(userLat, userLon, support5G = true) {
 function tryConnect(user, target) {
   return new Promise((resolve) => {
     request = generateRequest(user);
+<<<<<<< Updated upstream
     const socket = io(`http://localhost:${SERVER_PORT}`, {
+=======
+    const socket = io(SERVER_IP, {
+>>>>>>> Stashed changes
       query: { request: JSON.stringify(request), targetId: target.id },
       timeout: 3000
     });

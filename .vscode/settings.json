@@ -1,7 +1,12 @@
 {
+<<<<<<< Updated upstream
     "python.analysis.extraPaths": [
         "./Classes"
     ]
+=======
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": []
+>>>>>>> Stashed changes
 } // {
 //     "python.defaultInterpreterPath": "D:\\coding\\PBL4\\sag_env\\Scripts\\python.exe",
 //     "terminal.integrated.profiles.windows": {
