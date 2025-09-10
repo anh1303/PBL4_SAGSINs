@@ -15,74 +15,56 @@ class Satellite(node):
         self.type = sat["type"]
         self.orbit = sat["orbit"]
         self.connections = []
+        self.priority = 4
         
-    def can_connect_sat(self, dev_lat, dev_lon, dev_alt=0):
-        """
-        Kiểm tra xem thiết bị có nằm trong vùng phủ của vệ tinh hay không.
-        
-        :param sat_data: dict vệ tinh, cần có keys: type, position {lat, lon, alt}
-        :param dev_lat: latitude thiết bị (độ)
-        :param dev_lon: longitude thiết bị (độ)
-        :param dev_alt: altitude thiết bị (mét, default=0)
-        :return: True nếu thiết bị nằm trong vùng phủ, False nếu không
-        """
-        # --- Chọn el_min theo loại vệ tinh ---
-        sat_type = self.type
-        if sat_type == "LEO":
-            el_min_deg = 7.5
-        elif sat_type == "GEO":
-            el_min_deg = 5.0
-        else:
-            el_min_deg = 7.5  # mặc định
-        
-        # --- Lấy vị trí vệ tinh ---
-        sat_lat = self.position["lat"]
-        sat_lon = self.position["lon"]
-        sat_alt = self.position["alt"]
-        
-        # --- Chuyển sang radian ---
-        phi_sat = math.radians(sat_lat)
-        lam_sat = math.radians(sat_lon)
-        phi_dev = math.radians(dev_lat)
-        lam_dev = math.radians(dev_lon)
-        
-        # --- Tọa độ Cartesian ---
-        x_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.cos(lam_sat)
-        y_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.sin(lam_sat)
-        z_sat = (EARTH_RADIUS + sat_alt) * math.sin(phi_sat)
-        
-        x_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.cos(lam_dev)
-        y_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.sin(lam_dev)
-        z_dev = (EARTH_RADIUS + dev_alt) * math.sin(phi_dev)
-        
-        # --- Vector từ thiết bị đến vệ tinh ---
-        dx = x_sat - x_dev
-        dy = y_sat - y_dev
-        dz = z_sat - z_dev
-        
-        # --- Khoảng cách từ thiết bị đến vệ tinh ---
-        d = math.sqrt(dx**2 + dy**2 + dz**2)
-        
-        # --- Vector từ thiết bị đến tâm Trái Đất ---
-        r_dev = math.sqrt(x_dev**2 + y_dev**2 + z_dev**2)
-        
-        # --- Tính góc nâng chính xác ---
-        # Sử dụng công thức: sin(el) = (R⃗_sat • R⃗_dev) / (|R⃗_sat| |R⃗_dev|) - R/|R⃗_dev|
-        # Hoặc cách đơn giản hơn: cos(zenith_angle) = (dx*x_dev + dy*y_dev + dz*z_dev) / (d * r_dev)
-        
-        dot_product = dx*x_dev + dy*y_dev + dz*z_dev
-        cos_zenith = dot_product / (d * r_dev)
-        cos_zenith = max(-1.0, min(1.0, cos_zenith))  # giới hạn trong [-1, 1]
-        
-        # Góc thiên đỉnh (zenith angle) là góc giữa vector thẳng đứng và vector tới vệ tinh
-        # Góc nâng (elevation) = 90° - góc thiên đỉnh
-        zenith_angle_rad = math.acos(cos_zenith)
-        el_rad = math.pi/2 - zenith_angle_rad
-        el_deg = math.degrees(el_rad)
-        
-        return el_deg >= el_min_deg
+        def can_connect_sat(self, other, el_min_deg=None):
+
+            # --- chọn el_min ---
+            if el_min_deg is None:
+                if self.type == "LEO":
+                    el_min_deg = 7.5
+                elif self.type == "GEO":
+                    el_min_deg = 5.0
+                else:
+                    el_min_deg = 7.5
+
+            # --- vị trí ---
+            sat_lat, sat_lon, sat_alt = self.position["lat"], self.position["lon"], self.position["alt"]
+            dev_lat, dev_lon, dev_alt = other.position["lat"], other.position["lon"], other.position.get("alt", 0)
+
+            # --- convert to rad ---
+            phi_sat, lam_sat = math.radians(sat_lat), math.radians(sat_lon)
+            phi_dev, lam_dev = math.radians(dev_lat), math.radians(dev_lon)
+
+            # --- Cartesian ---
+            x_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.cos(lam_sat)
+            y_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.sin(lam_sat)
+            z_sat = (EARTH_RADIUS + sat_alt) * math.sin(phi_sat)
+
+            x_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.cos(lam_dev)
+            y_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.sin(lam_dev)
+            z_dev = (EARTH_RADIUS + dev_alt) * math.sin(phi_dev)
+
+            # --- vector từ dev → sat ---
+            dx, dy, dz = x_sat - x_dev, y_sat - y_dev, z_sat - z_dev
+            d = math.sqrt(dx*dx + dy*dy + dz*dz)
+
+            # --- vector từ dev → tâm Trái Đất ---
+            r_dev = math.sqrt(x_dev*x_dev + y_dev*y_dev + z_dev*z_dev)
+
+            # --- cos(zenith) ---
+            dot_product = dx*x_dev + dy*y_dev + dz*z_dev
+            cos_zenith = dot_product / (d * r_dev)
+            cos_zenith = max(-1.0, min(1.0, cos_zenith))
+
+            # --- góc nâng ---
+            zenith_angle = math.acos(cos_zenith)
+            el_deg = math.degrees(math.pi/2 - zenith_angle)
+
+            return el_deg >= el_min_deg
+
     
-    def update_satellite_position_obj_db(self, db_collection=None, target_time: datetime = None, min_update_interval: float = 1.0):
+    def update_satellite_position_obj_db(self, db_collection=None, target_time: datetime = None, min_update_interval: float = 1.0, min_db_update_interval: float = 2000):
         """
         Cập nhật vị trí vệ tinh từ object, có thể update trực tiếp vào MongoDB nếu truyền collection.
 
@@ -142,14 +124,26 @@ class Satellite(node):
         self.last_update = target_time.isoformat()
         self.last_theta = theta
 
-        # --- Nếu truyền MongoDB collection, update DB ---
-        if db_collection is not None:
-            db_collection.update_one(
-                {"satellite_id": self.id},
-                {"$set": {
-                    "position": self.position,
-                    "last_update": self.last_update,
-                    "orbit_state.last_theta": self.last_theta
-                }}
-            )
+        if dt > min_db_update_interval:
+
+            # --- Nếu truyền MongoDB collection, update DB ---
+            if db_collection is not None:
+                db_collection.update_one(
+                    {"satellite_id": self.id},
+                    {"$set": {
+                        "position": self.position,
+                        "last_update": self.last_update,
+                        "orbit_state.last_theta": self.last_theta
+                    }}
+                )
+
+    def scan_neighbor(self,nodes):
+        neighbors = []
+        for node in nodes:
+            if hasattr(node, 'id') and node.id == self.id:
+                continue
+            if self.can_connect_sat(node):
+                neighbors.append(node)
+        return neighbors
+        
 
