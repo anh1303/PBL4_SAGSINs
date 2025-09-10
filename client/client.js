@@ -158,11 +158,7 @@ async function scanVisible(userLat, userLon, support5G = true) {
 function tryConnect(user, target) {
   return new Promise((resolve) => {
     request = generateRequest(user);
-<<<<<<< Updated upstream
-    const socket = io(`http://localhost:${SERVER_PORT}`, {
-=======
     const socket = io(SERVER_IP, {
->>>>>>> Stashed changes
       query: { request: JSON.stringify(request), targetId: target.id },
       timeout: 3000
     });
