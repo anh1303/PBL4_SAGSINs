@@ -99,7 +99,7 @@ class Satellite(node):
         if target_time is None:
             target_time = datetime.now(timezone.utc)
 
-        last_update = datetime.fromisoformat(self.last_theta.replace("Z", "+00:00"))
+        last_update = datetime.fromisoformat(self.last_update.replace("Z", "+00:00"))
         dt = (target_time - last_update).total_seconds()
 
         # --- Nếu Δt quá nhỏ, bỏ qua ---
@@ -111,7 +111,7 @@ class Satellite(node):
         r = EARTH_RADIUS + alt
         T = self.orbit["period"]
         inc = math.radians(self.orbit["inclination"])
-        raan = math.radians(self.orbit["orbit"]["raan"])
+        raan = math.radians(self.orbit["raan"])
         theta0 = self.last_theta
 
         # --- Góc mới ---

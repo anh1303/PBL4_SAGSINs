@@ -58,7 +58,7 @@ def scan(lat: float, lon: float, support5G : bool = False):
             })
     if support5G:
         for sat in satellites:
-            sat.update_position_obj_db(collection)
+            sat.update_satellite_position_obj_db(collection)
             if sat.can_connect_sat(lat, lon):
                 visible_sat.append({
                     "type": "satellite",
