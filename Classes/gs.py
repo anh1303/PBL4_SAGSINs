@@ -7,10 +7,13 @@ class Gs(node):
         self.coverage_radius_km = gs["coverage_radius_km"]
         self.type = "groundstation"
         self.connections = []
+        self.priority = 1
+        self.typename = "gs"
 
-    def can_connect_gs(self, dev_lat, dev_lon, dev_alt=0):
-        dist = self.calculate_distance(dev_lat, dev_lon, dev_alt)/1000  # km
-        return dist <= self.coverage_radius_km
+    def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection=None):
+        dist_km = self.calculate_distance(dev_lat, dev_lon, dev_alt, mode="surface") / 1000
+        return dist_km <= self.coverage_radius_km
+
     
     def connect_gs(self):
         raise NotImplementedError("This method will be built later")

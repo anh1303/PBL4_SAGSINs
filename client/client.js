@@ -4,7 +4,8 @@ const { io } = require("socket.io-client");
 
 const PYTHON_SERVICE_URL = "http://localhost:8000/scan";
 const SERVER_PORT = 3000; // The socket server port
-const SERVER_IP = "http://172.20.10.3:3000"
+
+const SERVER_IP = "http://192.168.1.77:3000"
 
 // Generate random test input
 const ServiceType = {
@@ -18,55 +19,71 @@ const ServiceType = {
   EMERGENCY: 8
 };
 
-// QoS profiles by service type
+// QoS + resource profiles by service type
 const QoSProfiles = {
   [ServiceType.VOICE]: {
-    bandwidth: [0.1, 0.5],     // Mbps
-    latency: [20, 100],        // ms
+    bandwidth: [0.1, 0.5],
+    latency: [20, 100],
     reliability: [0.95, 0.99],
-    priority: [2, 4]
+    priority: [2, 4],
+    cpu: [1, 4],
+    power: [2, 6]
   },
   [ServiceType.VIDEO]: {
-    bandwidth: [2, 10],        // Mbps
+    bandwidth: [2, 10],
     latency: [50, 150],
     reliability: [0.90, 0.98],
-    priority: [3, 6]
+    priority: [3, 6],
+    cpu: [10, 30],
+    power: [20, 50]
   },
   [ServiceType.DATA]: {
     bandwidth: [1, 20],
     latency: [50, 200],
     reliability: [0.90, 0.97],
-    priority: [4, 7]
+    priority: [4, 7],
+    cpu: [5, 20],
+    power: [10, 40]
   },
   [ServiceType.IOT]: {
     bandwidth: [0.05, 0.5],
     latency: [10, 100],
     reliability: [0.97, 0.999],
-    priority: [2, 5]
+    priority: [2, 5],
+    cpu: [1, 3],
+    power: [1, 5]
   },
   [ServiceType.STREAMING]: {
     bandwidth: [3, 15],
     latency: [50, 150],
     reliability: [0.90, 0.97],
-    priority: [3, 6]
+    priority: [3, 6],
+    cpu: [15, 40],
+    power: [20, 60]
   },
   [ServiceType.BULK_TRANSFER]: {
     bandwidth: [10, 100],
     latency: [100, 500],
     reliability: [0.85, 0.95],
-    priority: [7, 10]
+    priority: [7, 10],
+    cpu: [20, 50],
+    power: [40, 80]
   },
   [ServiceType.CONTROL]: {
     bandwidth: [0.1, 1],
     latency: [5, 50],
     reliability: [0.99, 0.999],
-    priority: [1, 3]
+    priority: [1, 3],
+    cpu: [2, 6],
+    power: [5, 10]
   },
   [ServiceType.EMERGENCY]: {
     bandwidth: [0.5, 2],
     latency: [1, 20],
     reliability: [0.999, 1.0],
-    priority: [1, 1]  // always highest priority
+    priority: [1, 1],
+    cpu: [5, 15],
+    power: [10, 20]
   }
 };
 
@@ -77,19 +94,20 @@ function randRange([min, max], decimals = 2) {
 
 // Function to generate a request object
 function generateRequest(user) {
-  // Pick random service type
   const serviceTypes = Object.values(ServiceType);
   const type = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
 
-  // Get profile
   const profile = QoSProfiles[type];
 
   const bandwidth_required = randRange(profile.bandwidth, 2);
   const latency_required = randRange(profile.latency, 0);
   const reliability_required = randRange(profile.reliability, 3);
+  const cpu_required = Math.floor(randRange(profile.cpu, 0));
+  const power_required = Math.floor(randRange(profile.power, 0));
+
   const packet_size = Math.floor(Math.random() * 900) + 100; // 100–1000 bytes
   const priority = profile.priority[0] === profile.priority[1]
-    ? profile.priority[0]   // fixed priority (emergency case)
+    ? profile.priority[0]
     : Math.floor(randRange(profile.priority, 0));
 
   const direct_sat_support = user.support5G;
@@ -101,11 +119,14 @@ function generateRequest(user) {
     bandwidth_required,
     latency_required,
     reliability_required,
+    cpu_required,
+    power_required,
     packet_size,
     direct_sat_support,
     priority
   };
 }
+
 
 // Example: integrate with your randomUser()
 function randomUser() {
