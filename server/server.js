@@ -42,6 +42,7 @@ server.listen(PORT, "0.0.0.0", () => {
 io.on("connection", (socket) => {
   const { targetId } = socket.handshake.query;
 
+
   console.log(`🔌 New client connected: socketId=${socket.id}, targetId=${targetId}`);
 
   const accepted = Math.random() < ACCEPT_RATE;

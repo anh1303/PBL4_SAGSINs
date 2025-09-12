@@ -13,26 +13,29 @@ DB_NAME = "sagsins"
 # -----------------------------
 db = client[DB_NAME]
 # db = client["sagsins"]
-# collection = db["satellites"]
+collection = db["satellites"]
 # collection = db["groundstations"]
 # collection = db["seastations"]
-collection = db["uavs"]
+#collection = db["uavs"]
 
 # # Đọc file JSON
 # with open("seastations.json") as f:
 #     satellites = json.load(f)
 
-with open("uavs.json") as f:
-    uavs = json.load(f)
+#Delete all records
+#collection.delete_many({})
+
+with open("DB/satellites_24.json") as f:
+    satellites = json.load(f)
 
 # # Import vào MongoDB
-# collection.insert_many(satellites)
-collection.insert_many(uavs)
+collection.insert_many(satellites)
+#collection.insert_many(uavs)
 
-# print("Đã import", collection.count_documents({}), "vệ tinh vào MongoDB")
+print("Đã import", collection.count_documents({}), "vệ tinh vào MongoDB")
 # print("Đã import", collection.count_documents({}), "trạm mặt đất vào MongoDB")
 # print("Đã import", collection.count_documents({}), "trạm biển vào MongoDB")
-print("Đã import", collection.count_documents({}), "trạm UAV vào MongoDB")
+# print("Đã import", collection.count_documents({}), "trạm UAV vào MongoDB")
 
 # collection.update_many(
 #     {},
