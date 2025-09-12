@@ -1,1894 +1,2026 @@
 [
   {
     "satellite_id": "LEO-01",
-    "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "type": "LEO", 
+    "name": "USA-East",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 0.0,
-      "lon": 0.0,
+      "lat": 39.0,
+      "lon": -77.0,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
+      "inclination": 53.0,
       "raan": 0,
-      "period": 5400
+      "period": 5400,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2100,
+      "vy": 7200,
+      "vz": 450
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 45
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 420
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1680
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8192
       }
     },
-    "connections": [],
+    "connections": ["LEO-02", "LEO-07", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 15.2
+    },
+    "coverage_area": "Eastern USA, Washington DC, New York"
   },
   {
     "satellite_id": "LEO-02",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "USA-West", 
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 8.291027,
-      "lon": 18.0,
+      "lat": 37.4,
+      "lon": -122.0,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 9,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 15,
+      "period": 5400,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2300,
+      "vy": 6950,
+      "vz": 520
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 52
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 485
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1950
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 9216
       }
     },
-    "connections": [],
+    "connections": ["LEO-01", "LEO-03", "LEO-08"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 28.7
+    },
+    "coverage_area": "Western USA, California, Silicon Valley"
   },
   {
     "satellite_id": "LEO-03",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Canada",
+    "last_update": "2025-09-12T14:30:00Z", 
     "position": {
-      "lat": 16.377901,
-      "lon": 36.0,
-      "alt": 550000
+      "lat": 56.1,
+      "lon": -106.3,
+      "alt": 575000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 18,
-      "period": 5400
+      "inclination": 87.0,
+      "raan": 30,
+      "period": 5460,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2850,
+      "vy": 6420,
+      "vz": 785
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 120,
+        "current_used": 38
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1200,
+        "current_used": 325
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5500,
+        "current_used": 1420
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 7168
       }
     },
-    "connections": [],
+    "connections": ["LEO-02", "LEO-04", "LEO-09"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 42.1
+    },
+    "coverage_area": "Canada, Saskatchewan, Manitoba"
   },
   {
     "satellite_id": "LEO-04",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Mexico",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 24.061496,
-      "lon": 54.0,
-      "alt": 550000
+      "lat": 23.6,
+      "lon": -102.5,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 27,
-      "period": 5400
+      "inclination": 45.0,
+      "raan": 45,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -3200,
+      "vy": 5890,
+      "vz": 450
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 32
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 289
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1250
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6144
       }
     },
-    "connections": [],
+    "connections": ["LEO-03", "LEO-05", "LEO-10"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 55.6
+    },
+    "coverage_area": "Mexico, Central Mexico, Mexico City"
   },
   {
-    "satellite_id": "LEO-05",
+    "satellite_id": "LEO-05", 
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Brazil",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 31.152618,
-      "lon": 72.0,
-      "alt": 550000
+      "lat": -14.2,
+      "lon": -51.9,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 36,
-      "period": 5400
+      "inclination": 28.5,
+      "raan": 60,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2950,
+      "vy": 6280,
+      "vz": -280
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 68
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 634
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 2690
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 13056
       }
     },
-    "connections": [],
+    "connections": ["LEO-04", "LEO-06", "LEO-11"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 69.3
+    },
+    "coverage_area": "Brazil, Brasília, Amazon Region"
   },
   {
     "satellite_id": "LEO-06",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Argentina",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 37.476659,
-      "lon": 90.0,
-      "alt": 550000
+      "lat": -38.4,
+      "lon": -63.6,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 45,
-      "period": 5400
+      "inclination": 82.8,
+      "raan": 75,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5480,
+      "vy": 3650,
+      "vz": -680
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 25
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 189
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 950
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 5120
       }
     },
-    "connections": [],
+    "connections": ["LEO-05", "LEO-01", "LEO-12"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 82.7
+    },
+    "coverage_area": "Argentina, Buenos Aires, Patagonia"
   },
   {
     "satellite_id": "LEO-07",
-    "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "type": "LEO", 
+    "name": "UK",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 42.877901,
-      "lon": 108.0,
+      "lat": 55.3,
+      "lon": -3.4,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 54,
-      "period": 5400
+      "inclination": 85.2,
+      "raan": 90,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -1850,
+      "vy": 7120,
+      "vz": 650
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 55
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 523
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 2090
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 10752
       }
     },
-    "connections": [],
+    "connections": ["LEO-01", "LEO-08", "LEO-13", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 95.1
+    },
+    "coverage_area": "United Kingdom, London, Scotland"
   },
   {
     "satellite_id": "LEO-08",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "France",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 47.223346,
-      "lon": 126.0,
+      "lat": 46.2,
+      "lon": 2.2,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 63,
-      "period": 5400
+      "inclination": 85.2,
+      "raan": 105,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2560,
+      "vy": 6750,
+      "vz": 580
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 48
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 456
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1820
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 9728
       }
     },
-    "connections": [],
+    "connections": ["LEO-02", "LEO-07", "LEO-09", "LEO-14"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 108.4
+    },
+    "coverage_area": "France, Paris, Western Europe"
   },
   {
     "satellite_id": "LEO-09",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Germany",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 50.405995,
-      "lon": 144.0,
+      "lat": 51.2,
+      "lon": 10.4,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 72,
-      "period": 5400
+      "inclination": 85.2,
+      "raan": 120,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -3120,
+      "vy": 6250,
+      "vz": 720
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 42
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 387
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1650
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 7680
       }
     },
-    "connections": [],
+    "connections": ["LEO-03", "LEO-08", "LEO-10", "LEO-15"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 121.8
+    },
+    "coverage_area": "Germany, Berlin, Central Europe"
   },
   {
     "satellite_id": "LEO-10",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Russia",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 52.347482,
-      "lon": 162.0,
-      "alt": 550000
+      "lat": 61.5,
+      "lon": 105.3,
+      "alt": 575000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 81,
-      "period": 5400
+      "inclination": 87.5,
+      "raan": 135,
+      "period": 5460,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -3850,
+      "vy": 5680,
+      "vz": 820
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 120,
+        "current_used": 28
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1200,
+        "current_used": 234
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5500,
+        "current_used": 1120
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 5632
       }
     },
-    "connections": [],
+    "connections": ["LEO-04", "LEO-09", "LEO-11", "LEO-16"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 135.2
+    },
+    "coverage_area": "Russia, Siberia, Moscow"
   },
   {
     "satellite_id": "LEO-11",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "China-North",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 53.0,
-      "lon": 180.0,
+      "lat": 35.8,
+      "lon": 104.2,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 90,
-      "period": 5400
+      "inclination": 85.2,
+      "raan": 150,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4250,
+      "vy": 5120,
+      "vz": 480
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 58
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 567
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 2280
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 11264
       }
     },
-    "connections": [],
+    "connections": ["LEO-05", "LEO-10", "LEO-12", "LEO-17"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 148.6
+    },
+    "coverage_area": "Northern China, Beijing, Xi'an"
   },
   {
     "satellite_id": "LEO-12",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "China-South",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 52.347482,
-      "lon": -162.0,
-      "alt": 550000
+      "lat": 23.1,
+      "lon": 113.3,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 99,
-      "period": 5400
+      "inclination": 45.0,
+      "raan": 165,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4580,
+      "vy": 4650,
+      "vz": 290
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 65
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 623
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 2480
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 12800
       }
     },
-    "connections": [],
+    "connections": ["LEO-06", "LEO-11", "LEO-13", "LEO-18"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 162.3
+    },
+    "coverage_area": "Southern China, Guangzhou, Hong Kong"
   },
   {
     "satellite_id": "LEO-13",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Japan",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 50.405995,
-      "lon": -144.0,
+      "lat": 36.2,
+      "lon": 138.3,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 108,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 180,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4820,
+      "vy": 4280,
+      "vz": 350
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 41
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 378
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1580
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8704
       }
     },
-    "connections": [],
+    "connections": ["LEO-07", "LEO-12", "LEO-14", "LEO-19", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 175.9
+    },
+    "coverage_area": "Japan, Tokyo, Honshu"
   },
   {
     "satellite_id": "LEO-14",
-    "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "type": "LEO", 
+    "name": "South-Korea",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 47.223346,
-      "lon": -126.0,
+      "lat": 35.9,
+      "lon": 127.8,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 117,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 195,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4950,
+      "vy": 3890,
+      "vz": 420
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 35
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 298
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1350
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6656
       }
     },
-    "connections": [],
+    "connections": ["LEO-08", "LEO-13", "LEO-15", "LEO-20"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 189.4
+    },
+    "coverage_area": "South Korea, Seoul, Korean Peninsula"
   },
   {
     "satellite_id": "LEO-15",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "India",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 42.877901,
-      "lon": -108.0,
-      "alt": 550000
+      "lat": 20.6,
+      "lon": 78.9,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 126,
-      "period": 5400
+      "inclination": 28.5,
+      "raan": 210,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5120,
+      "vy": 3450,
+      "vz": -180
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 58
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 534
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 2180
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 10496
       }
     },
-    "connections": [],
+    "connections": ["LEO-09", "LEO-14", "LEO-16", "LEO-21"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 202.8
+    },
+    "coverage_area": "India, New Delhi, Mumbai"
   },
   {
     "satellite_id": "LEO-16",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Indonesia",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 37.476659,
-      "lon": -90.0,
-      "alt": 550000
+      "lat": -0.8,
+      "lon": 113.9,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 135,
-      "period": 5400
+      "inclination": 5.0,
+      "raan": 225,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5250,
+      "vy": 3020,
+      "vz": 50
     },
-    "status": "ACTIVE",
+    "status": "ACTIVE", 
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 45
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 398
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1790
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8448
       }
     },
-    "connections": [],
+    "connections": ["LEO-10", "LEO-15", "LEO-17", "LEO-22"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 216.1
+    },
+    "coverage_area": "Indonesia, Jakarta, Southeast Asia"
   },
   {
     "satellite_id": "LEO-17",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Australia",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 31.152618,
-      "lon": -72.0,
-      "alt": 550000
+      "lat": -25.3,
+      "lon": 133.8,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 144,
-      "period": 5400
+      "inclination": 82.8,
+      "raan": 240,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5380,
+      "vy": 2580,
+      "vz": -320
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 38
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 323
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1450
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 7168
       }
     },
-    "connections": [],
+    "connections": ["LEO-11", "LEO-16", "LEO-18", "LEO-23"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 229.7
+    },
+    "coverage_area": "Australia, Canberra, Sydney"
   },
   {
     "satellite_id": "LEO-18",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Iran",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 24.061496,
-      "lon": -54.0,
+      "lat": 32.4,
+      "lon": 53.7,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 153,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 255,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5420,
+      "vy": 2150,
+      "vz": 380
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 33
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 287
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1290
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6144
       }
     },
-    "connections": [],
+    "connections": ["LEO-12", "LEO-17", "LEO-07", "LEO-24", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 243.2
+    },
+    "coverage_area": "Iran, Tehran, Middle East"
   },
   {
     "satellite_id": "LEO-19",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Egypt",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 16.377901,
-      "lon": -36.0,
+      "lat": 26.8,
+      "lon": 30.8,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 162,
-      "period": 5400
+      "inclination": 45.0,
+      "raan": 270,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4980,
+      "vy": 4720,
+      "vz": 350
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 68
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 645
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 2650
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 13312
       }
     },
-    "connections": [],
+    "connections": ["LEO-13", "LEO-20", "LEO-25", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 256.8
+    },
+    "coverage_area": "Egypt, Cairo, North Africa"
   },
   {
     "satellite_id": "LEO-20",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Nigeria",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 8.291027,
-      "lon": -18.0,
-      "alt": 550000
+      "lat": 9.1,
+      "lon": 8.7,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 171,
-      "period": 5400
+      "inclination": 15.0,
+      "raan": 285,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5250,
+      "vy": 4180,
+      "vz": 120
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 32
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 278
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1240
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6144
       }
     },
-    "connections": [],
+    "connections": ["LEO-14", "LEO-19", "LEO-21", "LEO-26", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 270.3
+    },
+    "coverage_area": "Nigeria, Abuja, West Africa"
   },
   {
     "satellite_id": "LEO-21",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "South-Africa",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": 0.0,
-      "lon": 0.0,
-      "alt": 550000
+      "lat": -30.6,
+      "lon": 22.9,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 180,
-      "period": 5400
+      "inclination": 82.8,
+      "raan": 300,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5650,
+      "vy": 3120,
+      "vz": -390
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 62
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 576
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 2420
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 11776
       }
     },
-    "connections": [],
+    "connections": ["LEO-15", "LEO-20", "LEO-22", "LEO-27"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 283.9
+    },
+    "coverage_area": "South Africa, Cape Town, Johannesburg"
   },
   {
     "satellite_id": "LEO-22",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Turkey",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -8.291027,
-      "lon": 18.0,
+      "lat": 38.9,
+      "lon": 35.2,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 189,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 315,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5780,
+      "vy": 2590,
+      "vz": 420
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 48
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 412
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1840
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8960
       }
     },
-    "connections": [],
+    "connections": ["LEO-16", "LEO-21", "LEO-23", "LEO-28", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 297.4
+    },
+    "coverage_area": "Turkey, Ankara, Istanbul"
   },
   {
     "satellite_id": "LEO-23",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Saudi-Arabia",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -16.377901,
-      "lon": 36.0,
-      "alt": 550000
+      "lat": 23.9,
+      "lon": 45.1,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 198,
-      "period": 5400
+      "inclination": 28.5,
+      "raan": 330,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5890,
+      "vy": 2050,
+      "vz": -150
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 55
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 487
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 2080
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 9984
       }
     },
-    "connections": [],
+    "connections": ["LEO-17", "LEO-22", "LEO-24", "LEO-29", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 310.7
+    },
+    "coverage_area": "Saudi Arabia, Riyadh, Arabian Peninsula"
   },
   {
     "satellite_id": "LEO-24",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Thailand",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -24.061496,
-      "lon": 54.0,
-      "alt": 550000
+      "lat": 15.9,
+      "lon": 100.9,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 207,
-      "period": 5400
+      "inclination": 20.0,
+      "raan": 345,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4980,
+      "vy": 4720,
+      "vz": 180
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 38
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 342
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1520
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 7424
       }
     },
-    "connections": [],
+    "connections": ["LEO-18", "LEO-23", "LEO-19", "LEO-30", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 324.2
+    },
+    "coverage_area": "Thailand, Bangkok, Southeast Asia"
   },
   {
     "satellite_id": "LEO-25",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Italy",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -31.152618,
-      "lon": 72.0,
+      "lat": 41.9,
+      "lon": 12.6,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 216,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 0,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2100,
+      "vy": 7200,
+      "vz": 450
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 33
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 287
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1290
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6144
       }
     },
-    "connections": [],
+    "connections": ["LEO-19", "LEO-26", "LEO-31", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 337.8
+    },
+    "coverage_area": "Italy, Rome, Mediterranean"
   },
   {
     "satellite_id": "LEO-26",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Spain",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -37.476659,
-      "lon": 90.0,
+      "lat": 40.5,
+      "lon": -3.7,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 225,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 15,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2300,
+      "vy": 6950,
+      "vz": 520
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 45
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 398
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1790
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8448
       }
     },
-    "connections": [],
+    "connections": ["LEO-20", "LEO-25", "LEO-27", "LEO-32"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 351.1
+    },
+    "coverage_area": "Spain, Madrid, Iberian Peninsula"
   },
   {
     "satellite_id": "LEO-27",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Morocco",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -42.877901,
-      "lon": 108.0,
+      "lat": 31.8,
+      "lon": -7.1,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 234,
-      "period": 5400
+      "inclination": 45.0,
+      "raan": 30,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2850,
+      "vy": 6420,
+      "vz": 450
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 28
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 234
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1120
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 5632
       }
     },
-    "connections": [],
+    "connections": ["LEO-21", "LEO-26", "LEO-28", "LEO-33", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 4.6
+    },
+    "coverage_area": "Morocco, Rabat, North Africa"
   },
   {
     "satellite_id": "LEO-28",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Algeria",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -47.223346,
-      "lon": 126.0,
-      "alt": 550000
+      "lat": 28.0,
+      "lon": 1.7,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 243,
-      "period": 5400
+      "inclination": 28.5,
+      "raan": 45,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -3200,
+      "vy": 5890,
+      "vz": -180
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 22
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 167
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 890
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 4608
       }
     },
-    "connections": [],
+    "connections": ["LEO-22", "LEO-27", "LEO-29", "LEO-34", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 18.3
+    },
+    "coverage_area": "Algeria, Algiers, North Africa"
   },
   {
     "satellite_id": "LEO-29",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Kenya",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -50.405995,
-      "lon": 144.0,
-      "alt": 550000
+      "lat": -1.3,
+      "lon": 36.8,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 252,
-      "period": 5400
+      "inclination": 5.0,
+      "raan": 60,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -3850,
+      "vy": 5680,
+      "vz": -50
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 35
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 298
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1350
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6656
       }
     },
-    "connections": [],
+    "connections": ["LEO-23", "LEO-28", "LEO-30", "LEO-35", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 31.9
+    },
+    "coverage_area": "Kenya, Nairobi, East Africa"
   },
   {
     "satellite_id": "LEO-30",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Philippines",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -52.347482,
-      "lon": 162.0,
-      "alt": 550000
+      "lat": 12.9,
+      "lon": 121.8,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 261,
-      "period": 5400
+      "inclination": 15.0,
+      "raan": 75,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4580,
+      "vy": 4650,
+      "vz": 120
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 52
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 485
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1950
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 9216
       }
     },
-    "connections": [],
+    "connections": ["LEO-24", "LEO-29", "LEO-25", "LEO-36", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 45.4
+    },
+    "coverage_area": "Philippines, Manila, Western Pacific"
   },
   {
     "satellite_id": "LEO-31",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Norway",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -53.0,
-      "lon": 180.0,
-      "alt": 550000
+      "lat": 60.5,
+      "lon": 8.5,
+      "alt": 575000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 270,
-      "period": 5400
+      "inclination": 87.5,
+      "raan": 90,
+      "period": 5460,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -1850,
+      "vy": 7120,
+      "vz": 850
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 120,
+        "current_used": 25
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1200,
+        "current_used": 189
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5500,
+        "current_used": 950
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 5120
       }
     },
-    "connections": [],
+    "connections": ["LEO-25", "LEO-32", "LEO-37", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 58.8
+    },
+    "coverage_area": "Norway, Oslo, Scandinavia"
   },
   {
     "satellite_id": "LEO-32",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Sweden",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -52.347482,
-      "lon": -162.0,
-      "alt": 550000
+      "lat": 60.1,
+      "lon": 18.6,
+      "alt": 575000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 279,
-      "period": 5400
+      "inclination": 87.5,
+      "raan": 105,
+      "period": 5460,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2100,
+      "vy": 6950,
+      "vz": 820
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 120,
+        "current_used": 19
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1200,
+        "current_used": 145
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5500,
+        "current_used": 780
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 4096
       }
     },
-    "connections": [],
+    "connections": ["LEO-26", "LEO-31", "LEO-33", "LEO-38"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 72.1
+    },
+    "coverage_area": "Sweden, Stockholm, Northern Europe"
   },
   {
     "satellite_id": "LEO-33",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Poland",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -50.405995,
-      "lon": -144.0,
+      "lat": 51.9,
+      "lon": 19.1,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 288,
-      "period": 5400
+      "inclination": 85.2,
+      "raan": 120,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -2850,
+      "vy": 6420,
+      "vz": 720
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 41
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 378
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1580
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8704
       }
     },
-    "connections": [],
+    "connections": ["LEO-27", "LEO-32", "LEO-34", "LEO-39"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 85.7
+    },
+    "coverage_area": "Poland, Warsaw, Eastern Europe"
   },
   {
     "satellite_id": "LEO-34",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Ukraine",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -47.223346,
-      "lon": -126.0,
+      "lat": 48.4,
+      "lon": 31.2,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 297,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 135,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -3120,
+      "vy": 6250,
+      "vz": 580
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 42
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 387
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1650
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 7680
       }
     },
-    "connections": [],
+    "connections": ["LEO-28", "LEO-33", "LEO-35", "LEO-40", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 99.2
+    },
+    "coverage_area": "Ukraine, Kyiv, Eastern Europe"
   },
   {
     "satellite_id": "LEO-35",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Ethiopia",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -42.877901,
-      "lon": -108.0,
-      "alt": 550000
+      "lat": 9.1,
+      "lon": 40.5,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 306,
-      "period": 5400
+      "inclination": 15.0,
+      "raan": 150,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4250,
+      "vy": 5120,
+      "vz": 80
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 26
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 203
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1080
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 5632
       }
     },
-    "connections": [],
+    "connections": ["LEO-29", "LEO-34", "LEO-36", "GEO-01"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 112.8
+    },
+    "coverage_area": "Ethiopia, Addis Ababa, Horn of Africa"
   },
   {
     "satellite_id": "LEO-36",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Vietnam",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -37.476659,
-      "lon": -90.0,
-      "alt": 550000
+      "lat": 14.1,
+      "lon": 108.3,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 315,
-      "period": 5400
+      "inclination": 20.0,
+      "raan": 165,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4820,
+      "vy": 4280,
+      "vz": 150
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 48
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 412
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1840
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 8960
       }
     },
-    "connections": [],
+    "connections": ["LEO-30", "LEO-35", "LEO-37", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 126.3
+    },
+    "coverage_area": "Vietnam, Ho Chi Minh City, Hanoi"
   },
   {
     "satellite_id": "LEO-37",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Bangladesh",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -31.152618,
-      "lon": -72.0,
-      "alt": 550000
+      "lat": 23.7,
+      "lon": 90.4,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 324,
-      "period": 5400
+      "inclination": 28.5,
+      "raan": 180,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5120,
+      "vy": 3450,
+      "vz": -180
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 58
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 534
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 2180
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 10496
       }
     },
-    "connections": [],
+    "connections": ["LEO-31", "LEO-36", "LEO-38", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 139.9
+    },
+    "coverage_area": "Bangladesh, Dhaka, Bay of Bengal"
   },
   {
     "satellite_id": "LEO-38",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Pakistan",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -24.061496,
-      "lon": -54.0,
+      "lat": 30.4,
+      "lon": 69.3,
       "alt": 550000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 333,
-      "period": 5400
+      "inclination": 53.0,
+      "raan": 195,
+      "period": 5400,
+      "eccentricity": 0.0008
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4950,
+      "vy": 3890,
+      "vz": 380
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 110,
+        "current_used": 35
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1100,
+        "current_used": 298
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5200,
+        "current_used": 1350
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6656
       }
     },
-    "connections": [],
+    "connections": ["LEO-32", "LEO-37", "LEO-39", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 153.4
+    },
+    "coverage_area": "Pakistan, Islamabad, Karachi"
   },
   {
     "satellite_id": "LEO-39",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Kazakhstan",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -16.377901,
-      "lon": -36.0,
-      "alt": 550000
+      "lat": 48.0,
+      "lon": 66.9,
+      "alt": 575000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 342,
-      "period": 5400
+      "inclination": 87.5,
+      "raan": 210,
+      "period": 5460,
+      "eccentricity": 0.001
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -4250,
+      "vy": 5120,
+      "vz": 780
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 100,
-        "current_used": 0
+        "max": 120,
+        "current_used": 21
       },
       "bandwidth": {
-        "max": 1000,
-        "current_used": 0
+        "max": 1200,
+        "current_used": 156
       },
       "power": {
-        "max": 5000,
-        "current_used": 0
+        "max": 5500,
+        "current_used": 850
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 4608
       }
     },
-    "connections": [],
+    "connections": ["LEO-33", "LEO-38", "LEO-40", "GEO-02"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 167.1
+    },
+    "coverage_area": "Kazakhstan, Almaty, Central Asia"
   },
   {
     "satellite_id": "LEO-40",
     "type": "LEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Chile",
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
-      "lat": -8.291027,
-      "lon": -18.0,
-      "alt": 550000
+      "lat": -33.4,
+      "lon": -70.7,
+      "alt": 525000
     },
     "orbit": {
-      "inclination": 53,
-      "raan": 351,
-      "period": 5400
+      "inclination": 82.8,
+      "raan": 225,
+      "period": 5340,
+      "eccentricity": 0.0005
     },
     "velocity": {
-      "vx": 0,
-      "vy": 7500,
-      "vz": 0
+      "vx": -5380,
+      "vy": 2580,
+      "vz": -420
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
         "max": 100,
-        "current_used": 0
+        "current_used": 32
       },
       "bandwidth": {
         "max": 1000,
-        "current_used": 0
+        "current_used": 234
       },
       "power": {
         "max": 5000,
-        "current_used": 0
+        "current_used": 1250
       },
       "memory": {
         "max": 32768,
-        "current_used": 0
+        "current_used": 6656
       }
     },
-    "connections": [],
+    "connections": ["LEO-34", "LEO-39", "LEO-31", "GEO-03"],
     "orbit_state": {
-      "last_theta": 0
-    }
+      "last_theta": 180.6
+    },
+    "coverage_area": "Chile, Santiago, Andes Mountains"
   },
   {
     "satellite_id": "GEO-01",
     "type": "GEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Atlantic Guardian", 
+    "last_update": "2025-09-12T14:30:00Z",
     "position": {
       "lat": 0.0,
       "lon": 0.0,
       "alt": 35786000
     },
     "orbit": {
-      "inclination": 0,
+      "inclination": 0.1,
       "raan": 0,
-      "period": 86164
+      "period": 86164,
+      "eccentricity": 0.0001
     },
     "velocity": {
       "vx": 0,
-      "vy": 0,
+      "vy": 3074,
       "vz": 0
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 200,
-        "current_used": 0
+        "max": 250,
+        "current_used": 175
       },
       "bandwidth": {
-        "max": 5000,
-        "current_used": 0
+        "max": 6000,
+        "current_used": 4200
       },
       "power": {
-        "max": 20000,
-        "current_used": 0
+        "max": 25000,
+        "current_used": 18750
       },
       "memory": {
         "max": 65536,
-        "current_used": 0
+        "current_used": 45056
       }
     },
-    "connections": [],
+    "connections": ["LEO-01", "LEO-07", "LEO-18", "LEO-19", "LEO-20", "LEO-22", "LEO-25", "LEO-27", "LEO-28", "LEO-29", "LEO-31", "LEO-34", "LEO-35", "GEO-03"],
     "orbit_state": {
       "last_theta": 0
-    }
+    },
+    "coverage_area": "Atlantic Ocean, Europe, Africa, Eastern Americas"
   },
   {
     "satellite_id": "GEO-02",
     "type": "GEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Asian Pacific Sentinel",
+    "last_update": "2025-09-12T14:30:00Z", 
     "position": {
       "lat": 0.0,
       "lon": 90.0,
       "alt": 35786000
     },
     "orbit": {
-      "inclination": 0,
+      "inclination": 0.1,
       "raan": 90,
-      "period": 86164
+      "period": 86164,
+      "eccentricity": 0.0001
     },
     "velocity": {
-      "vx": 0,
+      "vx": -3074,
       "vy": 0,
       "vz": 0
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 200,
-        "current_used": 0
+        "max": 250,
+        "current_used": 198
       },
       "bandwidth": {
-        "max": 5000,
-        "current_used": 0
+        "max": 6000,
+        "current_used": 4980
       },
       "power": {
-        "max": 20000,
-        "current_used": 0
+        "max": 25000,
+        "current_used": 21250
       },
       "memory": {
         "max": 65536,
-        "current_used": 0
+        "current_used": 52428
       }
     },
-    "connections": [],
+    "connections": ["LEO-13", "LEO-15", "LEO-16", "LEO-17", "LEO-23", "LEO-24", "LEO-30", "LEO-36", "LEO-37", "LEO-38", "LEO-39", "GEO-03"],
     "orbit_state": {
       "last_theta": 0
-    }
+    },
+    "coverage_area": "Indian Ocean, Asia, Australia, Western Pacific"
   },
   {
     "satellite_id": "GEO-03",
     "type": "GEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "name": "Pacific Meridian",
+    "last_update": "2025-09-10T12:00:00Z",
     "position": {
       "lat": 0.0,
       "lon": 180.0,
       "alt": 35786000
     },
     "orbit": {
-      "inclination": 0,
+      "inclination": 0.1,
       "raan": 180,
-      "period": 86164
+      "period": 86164,
+      "eccentricity": 0.0001
     },
     "velocity": {
       "vx": 0,
-      "vy": 0,
+      "vy": -3074,
       "vz": 0
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 200,
-        "current_used": 0
+        "max": 250,
+        "current_used": 95
       },
       "bandwidth": {
-        "max": 5000,
-        "current_used": 0
+        "max": 6000,
+        "current_used": 2150
       },
       "power": {
-        "max": 20000,
-        "current_used": 0
+        "max": 25000,
+        "current_used": 8750
       },
       "memory": {
         "max": 65536,
-        "current_used": 0
+        "current_used": 24576
       }
     },
-    "connections": [],
+    "connections": ["LEO-27", "LEO-34", "LEO-35", "LEO-36", "GEO-01", "GEO-02", "GEO-04"],
     "orbit_state": {
       "last_theta": 0
-    }
+    },
+    "coverage_area": "Central Pacific, Eastern Asia, Western Americas"
   },
   {
     "satellite_id": "GEO-04",
-    "type": "GEO",
-    "last_update": "2025-09-07T00:00:00Z",
+    "type": "GEO", 
+    "name": "Americas Bridge",
+    "last_update": "2025-09-10T12:00:00Z",
     "position": {
       "lat": 0.0,
-      "lon": 270.0,
+      "lon": -90.0,
       "alt": 35786000
     },
     "orbit": {
-      "inclination": 0,
+      "inclination": 0.1,
       "raan": 270,
-      "period": 86164
+      "period": 86164,
+      "eccentricity": 0.0001
     },
     "velocity": {
-      "vx": 0,
+      "vx": 3074,
       "vy": 0,
       "vz": 0
     },
     "status": "ACTIVE",
     "resources": {
       "cpu": {
-        "max": 200,
-        "current_used": 0
+        "max": 250,
+        "current_used": 142
       },
       "bandwidth": {
-        "max": 5000,
-        "current_used": 0
+        "max": 6000,
+        "current_used": 3480
       },
       "power": {
-        "max": 20000,
-        "current_used": 0
+        "max": 25000,
+        "current_used": 16250
       },
       "memory": {
         "max": 65536,
-        "current_used": 0
+        "current_used": 38912
       }
     },
-    "connections": [],
+    "connections": ["LEO-13", "LEO-19", "LEO-20", "LEO-25", "LEO-31", "GEO-03"],
     "orbit_state": {
       "last_theta": 0
-    }
+    },
+    "coverage_area": "Eastern Pacific, Americas, Caribbean"
   }
 ]
