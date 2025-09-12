@@ -8,10 +8,12 @@ class Ss(node):
         self.type = "seastation"
         self.connections = []
         self.priority = 2
+        self.typename = "seastation"
 
-    def can_connect_ss(self, dev_lat, dev_lon, dev_alt=0):
-        dist = self.calculate_distance(dev_lat, dev_lon, dev_alt)/1000  # km
-        return dist <= self.coverage_radius_km
+    def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection=None):
+        dist_km = self.calculate_distance(dev_lat, dev_lon, dev_alt, mode="surface") / 1000
+        return dist_km <= self.coverage_radius_km
+
     
     def connect_ss(self):
         raise NotImplementedError("This method will be built later")

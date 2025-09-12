@@ -11,32 +11,39 @@ class node():
         self.resources = resources
         self.connections = []
         self.free_resources = resources.copy()
+        self.typename = "node"
 
-    def calculate_distance(self, lat2, lon2, alt2=0):
+    import math
+
+    def calculate_distance(self, lat2, lon2, alt2=0, mode="3d"):
         lat1 = self.position["lat"]
         lon1 = self.position["lon"]
         alt1 = self.position["alt"]
-        phi1 = math.radians(lat1)
-        phi2 = math.radians(lat2)
-        lam1 = math.radians(lon1)
-        lam2 = math.radians(lon2)
 
-        # --- Tọa độ Cartesian ---
-        x1 = (EARTH_RADIUS + alt1) * math.cos(phi1) * math.cos(lam1)
-        y1 = (EARTH_RADIUS + alt1) * math.cos(phi1) * math.sin(lam1)
-        z1 = (EARTH_RADIUS + alt1) * math.sin(phi1)
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        lam1, lam2 = math.radians(lon1), math.radians(lon2)
 
-        x2 = (EARTH_RADIUS + alt2) * math.cos(phi2) * math.cos(lam2)
-        y2 = (EARTH_RADIUS + alt2) * math.cos(phi2) * math.sin(lam2)
-        z2 = (EARTH_RADIUS + alt2) * math.sin(phi2)
+        if mode == "surface":
+            # --- Haversine formula ---
+            dphi = phi2 - phi1
+            dlam = lam2 - lam1
+            a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlam/2)**2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+            return EARTH_RADIUS * c  # mét
 
-        # --- Khoảng cách Euclidean ---
-        dx = x2 - x1
-        dy = y2 - y1
-        dz = z2 - z1
+        else:  # "3d" hoặc "auto"
+            # --- Cartesian ---
+            x1 = (EARTH_RADIUS + alt1) * math.cos(phi1) * math.cos(lam1)
+            y1 = (EARTH_RADIUS + alt1) * math.cos(phi1) * math.sin(lam1)
+            z1 = (EARTH_RADIUS + alt1) * math.sin(phi1)
 
-        distance = math.sqrt(dx**2 + dy**2 + dz**2)
-        return distance
+            x2 = (EARTH_RADIUS + alt2) * math.cos(phi2) * math.cos(lam2)
+            y2 = (EARTH_RADIUS + alt2) * math.cos(phi2) * math.sin(lam2)
+            z2 = (EARTH_RADIUS + alt2) * math.sin(phi2)
+
+            dx, dy, dz = x2 - x1, y2 - y1, z2 - z1
+            return math.sqrt(dx*dx + dy*dy + dz*dz)  # mét
+
     
     def allocate_resource(self, req: request, allow_partial=True) -> bool:
         """
@@ -98,6 +105,9 @@ class node():
         })
 
         return True
+    
+    def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection = None):
+        raise NotImplementedError("This method should be implemented in subclasses")
 
 
 

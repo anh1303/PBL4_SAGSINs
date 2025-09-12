@@ -16,52 +16,52 @@ class Satellite(node):
         self.orbit = sat["orbit"]
         self.connections = []
         self.priority = 4
+        self.typename = "satellite"
         
-        def can_connect_sat(self, other, el_min_deg=None):
+    def can_connect(self, dev_lat, dev_lon, dev_alt = 0, el_min_deg=None, collection=None):
+        self.update_satellite_position_obj_db(collection)
+        # --- chọn el_min ---
+        if el_min_deg is None:
+            if self.type == "LEO":
+                el_min_deg = 7.5
+            elif self.type == "GEO":
+                el_min_deg = 5.0
+            else:
+                el_min_deg = 7.5
 
-            # --- chọn el_min ---
-            if el_min_deg is None:
-                if self.type == "LEO":
-                    el_min_deg = 7.5
-                elif self.type == "GEO":
-                    el_min_deg = 5.0
-                else:
-                    el_min_deg = 7.5
+        # --- vị trí ---
+        sat_lat, sat_lon, sat_alt = self.position["lat"], self.position["lon"], self.position["alt"]
 
-            # --- vị trí ---
-            sat_lat, sat_lon, sat_alt = self.position["lat"], self.position["lon"], self.position["alt"]
-            dev_lat, dev_lon, dev_alt = other.position["lat"], other.position["lon"], other.position.get("alt", 0)
+        # --- convert to rad ---
+        phi_sat, lam_sat = math.radians(sat_lat), math.radians(sat_lon)
+        phi_dev, lam_dev = math.radians(dev_lat), math.radians(dev_lon)
 
-            # --- convert to rad ---
-            phi_sat, lam_sat = math.radians(sat_lat), math.radians(sat_lon)
-            phi_dev, lam_dev = math.radians(dev_lat), math.radians(dev_lon)
+        # --- Cartesian ---
+        x_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.cos(lam_sat)
+        y_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.sin(lam_sat)
+        z_sat = (EARTH_RADIUS + sat_alt) * math.sin(phi_sat)
 
-            # --- Cartesian ---
-            x_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.cos(lam_sat)
-            y_sat = (EARTH_RADIUS + sat_alt) * math.cos(phi_sat) * math.sin(lam_sat)
-            z_sat = (EARTH_RADIUS + sat_alt) * math.sin(phi_sat)
+        x_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.cos(lam_dev)
+        y_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.sin(lam_dev)
+        z_dev = (EARTH_RADIUS + dev_alt) * math.sin(phi_dev)
 
-            x_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.cos(lam_dev)
-            y_dev = (EARTH_RADIUS + dev_alt) * math.cos(phi_dev) * math.sin(lam_dev)
-            z_dev = (EARTH_RADIUS + dev_alt) * math.sin(phi_dev)
+        # --- vector từ dev → sat ---
+        dx, dy, dz = x_sat - x_dev, y_sat - y_dev, z_sat - z_dev
+        d = math.sqrt(dx*dx + dy*dy + dz*dz)
 
-            # --- vector từ dev → sat ---
-            dx, dy, dz = x_sat - x_dev, y_sat - y_dev, z_sat - z_dev
-            d = math.sqrt(dx*dx + dy*dy + dz*dz)
+        # --- vector từ dev → tâm Trái Đất ---
+        r_dev = math.sqrt(x_dev*x_dev + y_dev*y_dev + z_dev*z_dev)
 
-            # --- vector từ dev → tâm Trái Đất ---
-            r_dev = math.sqrt(x_dev*x_dev + y_dev*y_dev + z_dev*z_dev)
+        # --- cos(zenith) ---
+        dot_product = dx*x_dev + dy*y_dev + dz*z_dev
+        cos_zenith = dot_product / (d * r_dev)
+        cos_zenith = max(-1.0, min(1.0, cos_zenith))
 
-            # --- cos(zenith) ---
-            dot_product = dx*x_dev + dy*y_dev + dz*z_dev
-            cos_zenith = dot_product / (d * r_dev)
-            cos_zenith = max(-1.0, min(1.0, cos_zenith))
+        # --- góc nâng ---
+        zenith_angle = math.acos(cos_zenith)
+        el_deg = math.degrees(math.pi/2 - zenith_angle)
 
-            # --- góc nâng ---
-            zenith_angle = math.acos(cos_zenith)
-            el_deg = math.degrees(math.pi/2 - zenith_angle)
-
-            return el_deg >= el_min_deg
+        return el_deg >= el_min_deg
 
     
     def update_satellite_position_obj_db(self, db_collection=None, target_time: datetime = None, min_update_interval: float = 1.0, min_db_update_interval: float = 2000):
@@ -117,6 +117,7 @@ class Satellite(node):
         r_new = math.sqrt(x**2 + y**2 + z**2)
         lat_new = math.degrees(math.asin(z / r_new))
         lon_new = math.degrees(math.atan2(y, x))
+        lon_new = (lon_new + 180) % 360 - 180
         alt_new = r_new - EARTH_RADIUS
 
         # --- Cập nhật object ---
@@ -142,7 +143,7 @@ class Satellite(node):
         for node in nodes:
             if hasattr(node, 'id') and node.id == self.id:
                 continue
-            if self.can_connect_sat(node):
+            if self.can_connect_sat(node.position["lat"], node.position["lon"], node.position["alt"]):
                 neighbors.append(node)
         return neighbors
         

@@ -4,7 +4,7 @@ const { io } = require("socket.io-client");
 
 const PYTHON_SERVICE_URL = "http://localhost:8000/scan";
 const SERVER_PORT = 3000; // The socket server port
-const SERVER_IP = "http://172.20.10.3:3000"
+const SERVER_IP = "http://192.168.1.77:3000"
 
 // Generate random test input
 const ServiceType = {
