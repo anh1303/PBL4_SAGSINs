@@ -64,7 +64,7 @@ class Network:
                     target.position["lat"],
                     target.position["lon"],
                     target.position["alt"],
-                    collection=collection if target.typename == "satellite" else None,
+                    collection=self.collection if target.typename == "satellite" else None,
                 ):
                     connectable.append(target)
             except Exception as e:
