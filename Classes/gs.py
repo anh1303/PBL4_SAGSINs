@@ -5,10 +5,9 @@ class Gs(node):
         super().__init__(gs["location"], gs["resources"])
         self.id = gs["gs_id"]
         self.coverage_radius_km = gs["coverage_radius_km"]
-        self.type = "groundstation"
         self.connections = []
         self.priority = 1
-        self.typename = "groundstation"
+        self.typename = self.type = "groundstation"
 
     def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection=None):
         dist_km = self.calculate_distance(dev_lat, dev_lon, dev_alt, mode="surface") / 1000

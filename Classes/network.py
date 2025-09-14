@@ -15,6 +15,9 @@ class Network:
     
     
     nodes = {}
+    satellites = {}
+    groundstations = {}
+    seastations = {}
 
     def __init__(self):
         # chỉ load dữ liệu lần đầu khi nodes rỗng
@@ -40,6 +43,12 @@ class Network:
     def add_node(self, node_obj):
         """Thêm 1 node mới vào hệ thống"""
         Network.nodes[node_obj.id] = node_obj
+        if node_obj.typename == "satellite":
+            Network.satellites[node_obj.id] = node_obj
+        elif node_obj.typename == "groundstation":
+            Network.groundstations[node_obj.id] = node_obj
+        elif node_obj.typename == "seastation":
+            Network.seastations[node_obj.id] = node_obj
 
     def remove_node(self, node_id):
         """Xóa node theo id"""
@@ -166,3 +175,41 @@ class Network:
         for node_id in self.nodes:
             adj[node_id] = [n.id for n in self.find_connectable_nodes(node_id, mode)]
         return adj
+    
+    def distance_to_nearest_gs(self, node, mode="auto"):
+        """
+        Tính khoảng cách đến satellite gần nhất từ node
+        :param node: đối tượng node (node, gs, ss)
+        :param mode: kiểu tính khoảng cách ('3d', 'surface', hoặc 'auto')
+        :return: khoảng cách (mét) hoặc None nếu không có satellite nào
+        """
+        min_dist = None
+        for target_id, target in Network.groundstations.items():
+            try:
+                dist = target.calculate_distance(node.position["lat"], node.position["lon"], node.position["alt"], mode=mode)
+                if min_dist is None or dist < min_dist:
+                    min_dist = dist
+            except Exception as e:
+                print(f"⚠️ Error calculating distance to {target.id}: {e}")
+
+        return min_dist
+    
+    def distance_to_nearest_gs(self, lat, lon, alt=0, mode="auto"):
+        """
+        Tính khoảng cách đến ground station gần nhất từ vị trí (lat, lon, alt)
+        :param lat: vĩ độ
+        :param lon: kinh độ
+        :param alt: độ cao (mét)
+        :param mode: kiểu tính khoảng cách ('3d', 'surface', hoặc 'auto')
+        :return: khoảng cách (mét) hoặc None nếu không có ground station nào
+        """
+        min_dist = None
+        for target_id, target in Network.groundstations.items():
+            try:
+                dist = target.calculate_distance(lat, lon, alt, mode=mode)
+                if min_dist is None or dist < min_dist:
+                    min_dist = dist
+            except Exception as e:
+                print(f"⚠️ Error calculating distance to {target.id}: {e}")
+
+        return min_dist
