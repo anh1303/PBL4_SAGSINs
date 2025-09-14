@@ -18,33 +18,6 @@ import json
 
 EARTH_RADIUS = 6371000  # mét
 app = FastAPI()
-
-# uri = "mongodb+srv://longhoi856:UYcdtPdXsoYGFBrT@cluster0.hb5vpf7.mongodb.net/?retryWrites=true&w=majority"
-# client = MongoClient(uri, server_api=ServerApi('1'))
-# DB_NAME = "sagsins"
-# db = client[DB_NAME]
-# satellites = []
-# ground_stations = []
-# sea_stations = []
-
-# #add satellite from json
-# # with open("DB/satellites_24.json") as f:
-# #     sat = json.load(f)
-# # for s in sat:
-# #     satellites.append(Satellite(s))
-
-
-# collection = db["satellites"]
-# for sat in collection.find():
-#     satellites.append(Satellite(sat))
-# collection = db["groundstations"]
-# for gs in collection.find():
-#     ground_stations.append(Gs(gs))
-# collection = db["seastations"]
-# for ss in collection.find():
-#     sea_stations.append(Ss(ss))
-
-
     
 # collection = db["satellites"]  # dùng để cập nhật vị trí vệ tinh
 
@@ -71,6 +44,17 @@ def scan(lat: float, lon: float, support5G : bool = False):
 
 @app.get("/nodes")
 def get_all_nodes():
+    network = Network()
+    satellites = []
+    ground_stations = []
+    sea_stations = []
+    for node in network.nodes.values():
+        if node.typename == "satellite":
+            satellites.append(node)
+        elif node.typename == "groundstation":
+            ground_stations.append(node)
+        elif node.typename == "seastation":
+            sea_stations.append(node)
     return {
         "satellites": [{"id": sat.id, "lat": sat.position["lat"], "lon": sat.position["lon"], "alt": sat.position["alt"]} for sat in satellites],
         "groundstations": [{"id": gs.id, "lat": gs.position["lat"], "lon": gs.position["lon"], "alt": gs.position["alt"]} for gs in ground_stations],

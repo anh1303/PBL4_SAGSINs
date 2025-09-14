@@ -12,33 +12,90 @@ DB_NAME = "sagsins"
 db = client[DB_NAME]
 
 class Network:
+    
+    
+    nodes = {}
+
     def __init__(self):
-        # Danh sách node, key = id, value = object node
-        self.collection = db["satellites"]  # dùng để cập nhật vị trí vệ tinh
-        self.nodes = {}      
-        for sat in self.collection.find():
-            self.add_node(Satellite(sat))
-        self.collection = db["groundstations"]
-        for gs in self.collection.find():
-            self.add_node(Gs(gs))
-        self.collection = db["seastations"]
-        for ss in self.collection.find():
-            self.add_node(Ss(ss))
-        self.collection = db["satellites"]  # dùng để cập nhật vị trí vệ tinh
+        # chỉ load dữ liệu lần đầu khi nodes rỗng
+        if not Network.nodes:
+            # Load satellites
+            self.collection = db["satellites"]
+            for sat in self.collection.find():
+                self.add_node(Satellite(sat))
+
+            # Load ground stations
+            self.collection = db["groundstations"]
+            for gs in self.collection.find():
+                self.add_node(Gs(gs))
+
+            # Load sea stations
+            self.collection = db["seastations"]
+            for ss in self.collection.find():
+                self.add_node(Ss(ss))
+
+        # default collection for satellite updates
+        self.collection = db["satellites"]
 
     def add_node(self, node_obj):
         """Thêm 1 node mới vào hệ thống"""
-        self.nodes[node_obj.id] = node_obj
+        Network.nodes[node_obj.id] = node_obj
 
     def remove_node(self, node_id):
         """Xóa node theo id"""
-        if node_id in self.nodes:
-            del self.nodes[node_id]
+        if node_id in Network.nodes:
+            del Network.nodes[node_id]
 
     def get_node(self, node_id):
         """Lấy node theo id"""
-        return self.nodes.get(node_id, None)
+        return Network.nodes.get(node_id, None)
 
+    def find_connectable_nodes(self, node_id, mode="auto", support5G=True):
+        """
+        Tìm các node mà node_id có thể kết nối tới.
+        Kết nối được xem là hợp lệ nếu ít nhất 1 trong 2 chiều có thể kết nối.
+        
+        :param node_id: id của node nguồn
+        :param mode: kiểu tính khoảng cách ('3d', 'surface', hoặc 'auto')
+        :param support5G: nếu False thì bỏ qua kết nối với satellite
+        :return: list các node connectable
+        """
+        source = self.get_node(node_id)
+        if not source:
+            return []
+
+        connectable = []
+        for target_id, target in Network.nodes.items():
+            if target_id == node_id:
+                continue
+
+            if not support5G and target.typename == "satellite":
+                continue
+
+            try:
+                # Kiểm tra 2 chiều
+                ok = (
+                    source.can_connect(
+                        target.position["lat"],
+                        target.position["lon"],
+                        target.position["alt"],
+                        collection=self.collection if target.typename == "satellite" else None,
+                    )
+                    or target.can_connect(
+                        source.position["lat"],
+                        source.position["lon"],
+                        source.position["alt"],
+                        collection=self.collection if source.typename == "satellite" else None,
+                    )
+                )
+
+                if ok:
+                    connectable.append(target)
+
+            except Exception as e:
+                print(f"⚠️ Error checking {source.id}->{target.id}: {e}")
+
+        return connectable
     def find_connectable_nodes(self, node_id, mode="auto", support5G=True):
         """
         Tìm các node mà node_id có thể kết nối tới
@@ -51,7 +108,7 @@ class Network:
             return []
 
         connectable = []
-        for target_id, target in self.nodes.items():
+        for target_id, target in Network.nodes.items():
             if target_id == node_id:
                 continue
 

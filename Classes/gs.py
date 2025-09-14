@@ -8,7 +8,7 @@ class Gs(node):
         self.type = "groundstation"
         self.connections = []
         self.priority = 1
-        self.typename = "gs"
+        self.typename = "groundstation"
 
     def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection=None):
         dist_km = self.calculate_distance(dev_lat, dev_lon, dev_alt, mode="surface") / 1000
