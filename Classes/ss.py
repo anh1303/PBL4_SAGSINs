@@ -8,7 +8,7 @@ class Ss(node):
         self.type = "seastation"
         self.connections = []
         self.priority = 2
-        self.typename = "seastation"
+        self.typename = self.type = "seastation"
 
     def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection=None):
         dist_km = self.calculate_distance(dev_lat, dev_lon, dev_alt, mode="surface") / 1000

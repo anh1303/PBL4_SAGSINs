@@ -43,3 +43,4 @@ class request:
         self.demand_timeout = demand_timeout
         self.real_timeout = 0
         self.allow_partial = allow_partial  # cho phép cấp phát băng thông một phần hay không
+        self.path = [] # lưu đường đi đã chọn

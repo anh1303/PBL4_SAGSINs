@@ -12,6 +12,7 @@ class node():
         self.connections = []
         self.free_resources = resources.copy()
         self.typename = "node"
+        self.type = ""
 
     import math
 
