@@ -149,11 +149,12 @@ class SagsEnv(gym.Env):
         #Including: 
         #current hop / 10 (max 10 hops)
         #bandwidth allocated (min of every link)/ bandwidth required (cpu and power doesnt need to keep track because they just matter if the node is groundstation)
-        #source location (lat, lon)
+        #source location (lat, lon) Can chuan hoa
         #distance to nearest groundstation
         #number of nodes connectable
         #current reliability / reliability required normalized
         #current latency / latency required normalized
+        
         self.obs_dim = 12 #Just a placeholder for now
         self.observation_space = spaces.Box(
             low=0.0, high=1.0, shape=(self.obs_dim,), dtype=np.float32

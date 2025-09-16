@@ -1,6 +1,17 @@
 # sagsins_3d_extended.py
 from vpython import *
 from math import sin, cos, radians, pi, degrees
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../Classes')))
+from node import node
+from satellite import Satellite
+from gs import Gs
+from ss import Ss
+from network import Network
+
+#Contain information about all nodes
+network = Network()
 
 ############################################
 # Helpers (same as before)
