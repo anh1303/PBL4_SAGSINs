@@ -4,7 +4,7 @@ const os = require("os");
 const { Server } = require("socket.io");
 
 const PORT = 3000;
-const ACCEPT_RATE = 0.3; // 30% chance to accept connection
+const ACCEPT_RATE = 0.99; // 30% chance to accept connection
 const HEARTBEAT_INTERVAL = 5000; // ms
 
 // Function to get local LAN IP
@@ -45,7 +45,8 @@ io.on("connection", (socket) => {
 
   console.log(`🔌 New client connected: socketId=${socket.id}, targetId=${targetId}`);
 
-  const accepted = Math.random() < ACCEPT_RATE;
+  // const accepted = Math.random() < ACCEPT_RATE;
+  const accepted = true; // For testing, always accept
 
   if (accepted) {
     console.log(`✅ Accepted connection for targetId=${targetId}`);

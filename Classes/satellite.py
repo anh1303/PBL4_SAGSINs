@@ -68,11 +68,9 @@ class Satellite(node):
         """
         Cập nhật vị trí vệ tinh từ object, có thể update trực tiếp vào MongoDB nếu truyền collection.
 
-        :param sat_data: dict vệ tinh
         :param db_collection: pymongo collection (tùy chọn)
         :param target_time: thời điểm tính vị trí mới, mặc định giờ hiện tại
         :param min_update_interval: ngưỡng Δt (giây) để bỏ qua nếu quá nhỏ
-        :return: sat_data mới (đã cập nhật position, last_update, last_theta)
         """
 
         if self.type == "GEO":

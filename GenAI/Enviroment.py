@@ -17,6 +17,11 @@ import math
 
 C = 3e8
 
+resource_profile_relay = {
+    "cpu" : 5,
+    "power" : 3
+}
+
 GAMMA_PROFILE = {
     ("groundstation", "user"):      2.0e-4,   # GS <-> user (short ground links)
     ("groundstation", "uav"):        1.0e-4,   # GS <-> UAV (short air/ground links)
@@ -42,7 +47,7 @@ PROC_DELAY_BASE_MS = {
     "GEO": 10,           # GEO ground processing often higher ~10 ms
     "seastation": 6,     # ship/sea gateways ~6 ms
     "uav": 6,            # UAV processing ~6 ms
-    "groundstation": 510  # GS fast-path ~10 ms (but can be reduced for emergency)
+    "groundstation": 10  # GS fast-path ~10 ms (but can be reduced for emergency)
 }
 
 class ServiceType(Enum):
@@ -141,35 +146,50 @@ class SagsEnv(gym.Env):
 
         # Internal world state (hidden from agent)
         self.network = Network()
-        self.num_nodes = len(self.network.nodes)
-        self.connections = []  #List of all Requests currently being served
+        self.connections = []  #List of all Requests currently being served and later we will release resource to keep the environemnt run endlessly
         self.groundspace = GroundSpace() #Store location of each request to quickly scan for nearby users
 
         # State = request-local view
         #Including: 
+        #Type of Service: a vector with 1 at the index of the service type, 0 elsewhere (8) (Vd: 1,0,0,0,0,0,0,0)
         #current hop / 10 (max 10 hops)
+        #bandwidth required / max_bandwidth (100 Mbps)
         #bandwidth allocated (min of every link)/ bandwidth required (cpu and power doesnt need to keep track because they just matter if the node is groundstation)
-        #source location (lat, lon) Can chuan hoa
-        #distance to nearest groundstation
-        #number of nodes connectable
+        #source location (lat, lon, alt) Normalized with formula : (sin(lat), cos(lat), sin(lon), cos(lon), norm_alt = alt/10000000) (clip if >= 1)
+        #reliability required / max reliability (1.0)
         #current reliability / reliability required normalized
-        #current latency / latency required normalized
-        
-        self.obs_dim = 12 #Just a placeholder for now
+        #required latency / max latency (500 ms)
+        #latency required / latency currently normalized
+        #priority / max priority (10)
+        #cpu required / max cpu (50)
+        #power required / max power (100)
+        #number of neighbors of current hop / max neighbors (10)
+        #number of requests (users) in range of 2500km / 10000
+        #timemout remaining / estmate timeout (timeout user need) need more consideration
+        #top 10-nearest not passed nodes info (distance / (10000km), latency to node / max latency (500 ms), reliability to node / max reliability (1.0), bandwidth available / max bandwidth (100 Mbps), cpu available / required cpu, 
+        # power available / required power, gs_or_not, timeout/ user estimate timeout, numbers of user in range 2500 km / 10000, distance to nearest GS
+        # , remark of neareast GS) * 10
+        #neighbor will be (1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1) if there is not enough neighbor
+        self.obs_dim = 136
         self.observation_space = spaces.Box(
-            low=0.0, high=1.0, shape=(self.obs_dim,), dtype=np.float32
+            low=0, high=1.0, shape=(self.obs_dim,), dtype=np.float32
         )
 
-        # Action = [next_hop, bw_alloc, cpu_alloc, power_alloc] : just a sample for now
-        self.action_space = spaces.Box(low=0.0, high=1.0, shape=(4,), dtype=np.float32)
+        self.action_space = spaces.Discrete(10)
+
 
         self.steps = 0
         self.current_request = None
+        self.neighbor_ids = [None]*10 #Store the id of 10 nearest not passed nodes
+        self.current_node = None #Store the current node
 
     def reset(self):
-        self.nodes[:] = 1.0
+        self.current_node = None
+        self.neighbor_ids = [None]*10
+        self.current_node = None
         self.connections.clear()
         self.steps = 0
+        self.groundspace = GroundSpace()
         self._new_request()
         return self._get_obs()
 
@@ -201,6 +221,9 @@ class SagsEnv(gym.Env):
             [r["bw_req"], r["cpu_req"], r["power_req"], r["ttl"]/200.0, r["src"]/self.num_nodes, r["dst"]/self.num_nodes]
         ]).astype(np.float32)
 
+    #Khanh's work here, ChatGPT recommended adn then modified
+    #Note that you should add some priority profile for some Qos criteria later
+    #Also, you should consider the timeout of each request and release resource when timeout
     def step(self, action):
         self.steps += 1
         reward = 0
