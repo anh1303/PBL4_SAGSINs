@@ -12,7 +12,7 @@ class ServiceType(Enum):
 
 class request:
     def __init__(self, request_id, type: ServiceType, source_location,
-                 bandwidth_required, latency_required, reliability_required, cpu_required, power_required,
+                 uplink_required, downlink_required, latency_required, reliability_required, cpu_required, power_required,
                  packet_size, direct_sat_support = False, priority=10, demand_timeout=0, allow_partial=True):
         self.request_id = request_id
         self.type = type
@@ -27,12 +27,14 @@ class request:
         self.power_allocated = 0
 
         # QoS
-        self.bandwidth_required = bandwidth_required
+        self.uplink_required = uplink_required
+        self.downlink_required = downlink_required
         self.latency_required = latency_required
         self.reliability_required = reliability_required
         self.priority = priority
 
-        self.bandwidth_allocated = 0
+        self.uplink_allocated = 0
+        self.downlink_allocated = 0
         self.latency_actual = None
         self.reliability_actual = None
 
