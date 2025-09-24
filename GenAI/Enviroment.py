@@ -73,7 +73,8 @@ RelayProfiles = {
 
 QoSProfiles = {
     ServiceType.VOICE: {
-        "bandwidth": (0.1, 0.5),
+        "uplink": (0.1, 0.3),
+        "downlink": (0.2, 0.5),
         "latency": (20, 100),
         "reliability": (0.95, 0.99),
         "priority": (2, 4),
@@ -81,7 +82,8 @@ QoSProfiles = {
         "power": (2, 6),
     },
     ServiceType.VIDEO: {
-        "bandwidth": (2, 10),
+        "uplink": (1, 3),
+        "downlink": (5, 10),
         "latency": (50, 150),
         "reliability": (0.90, 0.98),
         "priority": (3, 6),
@@ -89,7 +91,8 @@ QoSProfiles = {
         "power": (20, 50),
     },
     ServiceType.DATA: {
-        "bandwidth": (1, 20),
+        "uplink": (1, 5),
+        "downlink": (5, 20),
         "latency": (50, 200),
         "reliability": (0.90, 0.97),
         "priority": (4, 7),
@@ -97,7 +100,8 @@ QoSProfiles = {
         "power": (10, 40),
     },
     ServiceType.IOT: {
-        "bandwidth": (0.05, 0.5),
+        "uplink": (0.05, 0.3),
+        "downlink": (0.05, 0.2),
         "latency": (10, 100),
         "reliability": (0.97, 0.999),
         "priority": (2, 5),
@@ -105,7 +109,8 @@ QoSProfiles = {
         "power": (1, 5),
     },
     ServiceType.STREAMING: {
-        "bandwidth": (3, 15),
+        "uplink": (1, 3),
+        "downlink": (8, 15),
         "latency": (50, 150),
         "reliability": (0.90, 0.97),
         "priority": (3, 6),
@@ -113,7 +118,8 @@ QoSProfiles = {
         "power": (20, 60),
     },
     ServiceType.BULK_TRANSFER: {
-        "bandwidth": (10, 100),
+        "uplink": (5, 20),
+        "downlink": (20, 100),
         "latency": (100, 500),
         "reliability": (0.85, 0.95),
         "priority": (7, 10),
@@ -121,7 +127,8 @@ QoSProfiles = {
         "power": (40, 80),
     },
     ServiceType.CONTROL: {
-        "bandwidth": (0.1, 1),
+        "uplink": (0.1, 0.5),
+        "downlink": (0.1, 0.5),
         "latency": (5, 50),
         "reliability": (0.99, 0.999),
         "priority": (1, 3),
@@ -129,7 +136,8 @@ QoSProfiles = {
         "power": (5, 10),
     },
     ServiceType.EMERGENCY: {
-        "bandwidth": (0.5, 2),
+        "uplink": (0.5, 2),
+        "downlink": (0.5, 2),
         "latency": (1, 20),
         "reliability": (0.999, 1.0),
         "priority": (1, 1),
@@ -137,6 +145,7 @@ QoSProfiles = {
         "power": (10, 20),
     },
 }
+
 
 
 
@@ -153,8 +162,10 @@ class SagsEnv(gym.Env):
         #Including: 
         #Type of Service: a vector with 1 at the index of the service type, 0 elsewhere (8) (Vd: 1,0,0,0,0,0,0,0)
         #current hop / 10 (max 10 hops)
-        #bandwidth required / max_bandwidth (100 Mbps)
-        #bandwidth allocated (min of every link)/ bandwidth required (cpu and power doesnt need to keep track because they just matter if the node is groundstation)
+        #uplink required / max uplink (20 Mbps)
+        #uplink allocated / uplink required normalized
+        #downlink required / max downlink (100 Mbps)
+        #downlink allocated / downlink required normalized
         #source location (lat, lon, alt) Normalized with formula : (sin(lat), cos(lat), sin(lon), cos(lon), norm_alt = alt/10000000) (clip if >= 1)
         #reliability required / max reliability (1.0)
         #current reliability / reliability required normalized
@@ -166,11 +177,11 @@ class SagsEnv(gym.Env):
         #number of neighbors of current hop / max neighbors (10)
         #number of requests (users) in range of 2500km / 10000
         #timemout remaining / estmate timeout (timeout user need) need more consideration
-        #top 10-nearest not passed nodes info (distance / (10000km), latency to node / max latency (500 ms), reliability to node / max reliability (1.0), bandwidth available / max bandwidth (100 Mbps), cpu available / required cpu, 
+        #top 10-nearest not passed nodes info (distance / (10000km), latency to node / max latency (500 ms), reliability to node / max reliability (1.0), uplink available / required uplink, downlink available/required downlink, cpu available / required cpu, 
         # power available / required power, gs_or_not, timeout/ user estimate timeout, numbers of user in range 2500 km / 10000, distance to nearest GS
         # , remark of neareast GS) * 10
-        #neighbor will be (1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1) if there is not enough neighbor
-        self.obs_dim = 136
+        #neighbor will be (1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1) if there is not enough neighbor
+        self.obs_dim = 148
         self.observation_space = spaces.Box(
             low=0, high=1.0, shape=(self.obs_dim,), dtype=np.float32
         )
@@ -224,6 +235,7 @@ class SagsEnv(gym.Env):
     #Khanh's work here, ChatGPT recommended adn then modified
     #Note that you should add some priority profile for some Qos criteria later
     #Also, you should consider the timeout of each request and release resource when timeout
+    #Make sure to consider the stability and up/down link separately
     def step(self, action):
         self.steps += 1
         reward = 0

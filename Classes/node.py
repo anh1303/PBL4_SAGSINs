@@ -53,22 +53,25 @@ class node():
         """
 
         # --- Available resources ---
-        bw_free = self.free_resources.get("bandwidth", 0)
+        up_link_free = self.free_resources.get("uplink", 0)
+        down_link_free = self.free_resources.get("downlink", 0)
         cpu_free = self.free_resources.get("cpu", 0)
         power_free = self.free_resources.get("power", 0)
 
         # --- Requested resources ---
-        bw_needed = req.bandwidth_required
+        uplink_needed = req.uplink_required
+        downlink_needed = req.downlink_required
         cpu_needed = req.cpu_required
         power_needed = req.power_required
 
         # --- Track allocated ---
-        bw_alloc = 0
+        up_link_alloc = 0
+        down_link_alloc = 0
         cpu_alloc = 0
         power_alloc = 0
 
         # --- Full allocation possible ---
-        if bw_free >= bw_needed and cpu_free >= cpu_needed and power_free >= power_needed:
+        if  and cpu_free >= cpu_needed and power_free >= power_needed:
             bw_alloc, cpu_alloc, power_alloc = bw_needed, cpu_needed, power_needed
             self.free_resources["bandwidth"] -= bw_alloc
             self.free_resources["cpu"] -= cpu_alloc

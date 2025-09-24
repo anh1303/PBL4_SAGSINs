@@ -106,7 +106,8 @@ for idx, sat in enumerate(network.satellites.values()):
     else:  # GEO
         orb_r = R_earth + 5.6
     theta = sat.last_theta
-    s_obj = sphere(radius=0.015*SCALE, color=sat_colors[idx], make_trail=True, retain=400)
+    #Make orbit line here
+    s_obj = sphere(radius=0.015*SCALE, color=sat_colors[idx], make_trail=False, retain=400)
     s_obj.pos = orb_r*(cos(theta)*p_hat + sin(theta)*q_hat)
     lbl = label(pos=s_obj.pos + vector(0.025*SCALE,0.025*SCALE,0.025*SCALE),
                 text=sat.id, height=8, box=False)
