@@ -235,6 +235,7 @@ class SagsEnv(gym.Env):
     #Khanh's work here, ChatGPT recommended adn then modified
     #Note that you should add some priority profile for some Qos criteria later
     #Also, you should consider the timeout of each request and release resource when timeout
+    #Make sure to consider the stability and up/down link separately
     def step(self, action):
         self.steps += 1
         reward = 0
