@@ -10,7 +10,9 @@ class node():
             self.position["alt"] = 0
         self.resources = resources
         self.connections = []
-        self.free_resources = resources.copy()
+        self.resources_used = resources.copy()
+        for i in self.resources_used:
+            self.resources_used[i] = 0
         self.typename = "node"
         self.type = ""
 
@@ -71,15 +73,9 @@ class node():
         power_alloc = 0
 
         # --- Full allocation possible ---
-        can_full = (up_link_free >= uplink_needed and
-                    down_link_free >= downlink_needed and
-                    cpu_free >= cpu_needed and
-                    power_free >= power_needed)
-        
-        if  can_full:
-            up_link_alloc, down_link_alloc, cpu_alloc, power_alloc = uplink_needed, downlink_needed, cpu_needed, power_needed
-            self.free_resources["uplink"] -= up_link_alloc
-            self.free_resources["downlink"] -= down_link_alloc
+        if cpu_free >= cpu_needed and power_free >= power_needed:
+            bw_alloc, cpu_alloc, power_alloc = bw_needed, cpu_needed, power_needed
+            self.free_resources["bandwidth"] -= bw_alloc
             self.free_resources["cpu"] -= cpu_alloc
             self.free_resources["power"] -= power_alloc
 
@@ -120,7 +116,7 @@ class node():
 
         return True
     
-    def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection = None):
+    def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection = None, is_sat = False):
         raise NotImplementedError("This method should be implemented in subclasses")
 
 

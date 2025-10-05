@@ -12,8 +12,8 @@ class ServiceType(Enum):
 
 class request:
     def __init__(self, request_id, type: ServiceType, source_location,
-                uplink_required, downlink_required, latency_required, reliability_required, cpu_required, power_required,
-                packet_size, direct_sat_support = False, priority=10, demand_timeout=0, allow_partial=True):
+                 uplink_required, downlink_required, latency_required, reliability_required, cpu_required, power_required,
+                 packet_size, priority=10, demand_timeout=0, direct_sat_support = False, allow_partial=True):
         self.request_id = request_id
         self.type = type
         self.source_location = source_location
@@ -43,6 +43,6 @@ class request:
 
         self.direct_sat_support = direct_sat_support  # thiết bị có thể kết nối trực tiếp vệ tinh hay không
         self.demand_timeout = demand_timeout
-        self.real_timeout = 0
+        self.real_timeout = demand_timeout  # thời gian còn lại trước khi timeout
         self.allow_partial = allow_partial  # cho phép cấp phát băng thông một phần hay không
         self.path = [] # lưu đường đi đã chọn
