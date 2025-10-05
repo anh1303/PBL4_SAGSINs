@@ -83,12 +83,14 @@ class node():
             # --- Partial allocation ---
             if allow_partial and req.allow_partial and req.type not in [ServiceType.EMERGENCY, ServiceType.CONTROL]:
                 # Allocate as much as possible from each dimension
-                bw_alloc = min(bw_free, bw_needed)
+                up_link_alloc = min(up_link_free, uplink_needed)
+                down_link_alloc = min(down_link_free, downlink_needed)
                 cpu_alloc = min(cpu_free, cpu_needed)
                 power_alloc = min(power_free, power_needed)
 
                 # Reduce free pool
-                self.free_resources["bandwidth"] -= bw_alloc
+                self.free_resources["uplink"] -= up_link_alloc
+                self.free_resources["downlink"] -= down_link_alloc
                 self.free_resources["cpu"] -= cpu_alloc
                 self.free_resources["power"] -= power_alloc
             else:
@@ -96,14 +98,16 @@ class node():
                 return False
 
         # --- Save allocation in request object ---
-        req.bandwidth_allocated = bw_alloc
+        req.uplink_allocated = up_link_alloc
+        req.downlink_allocated = down_link_alloc
         req.cpu_allocated = cpu_alloc
         req.power_allocated = power_alloc
 
         # --- Track connection ---
         self.connections.append({
             "request_id": req.request_id,
-            "bandwidth": bw_alloc,
+            "uplink": up_link_alloc,
+            "downlink": down_link_alloc,
             "cpu": cpu_alloc,
             "power": power_alloc,
             "priority": req.priority,
