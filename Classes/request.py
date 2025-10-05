@@ -12,8 +12,8 @@ class ServiceType(Enum):
 
 class request:
     def __init__(self, request_id, type: ServiceType, source_location,
-                 uplink_required, downlink_required, latency_required, reliability_required, cpu_required, power_required,
-                 packet_size, direct_sat_support = False, priority=10, demand_timeout=0, allow_partial=True):
+                uplink_required, downlink_required, latency_required, reliability_required, cpu_required, power_required,
+                packet_size, direct_sat_support = False, priority=10, demand_timeout=0, allow_partial=True):
         self.request_id = request_id
         self.type = type
         self.source_location = source_location

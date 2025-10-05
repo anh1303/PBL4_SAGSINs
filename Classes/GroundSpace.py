@@ -115,8 +115,8 @@ class GroundSpace:
             req = self.requests.get(ids[i])
             if req:
                 d = haversine(lat, lon,
-                              req.source_location["lat"],
-                              req.source_location["lon"])
+                            req.source_location["lat"],
+                            req.source_location["lon"])
                 if d <= radius_km * 1000:
                     results.append((d, req))
 
