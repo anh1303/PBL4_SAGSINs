@@ -8,10 +8,11 @@ from satellite import Satellite
 from gs import Gs
 from ss import Ss
 from network import Network
-from request import Request
+from request import request
 from GroundSpace import GroundSpace
 from enum import Enum, auto
 import math
+import random
 
 #rel_link = exp(-gamma * (d_km))
 
@@ -180,7 +181,8 @@ class SagsEnv(gym.Env):
         #top 10-nearest not passed nodes info (distance / (10000km), latency to node / max latency (500 ms), reliability to node / max reliability (1.0), uplink available / required uplink, downlink available/required downlink, cpu available / required cpu, 
         # power available / required power, gs_or_not, timeout/ user estimate timeout, numbers of user in range 2500 km / 10000, distance to nearest GS
         # , remark of neareast GS) * 10
-        #neighbor will be (1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1) if there is not enough neighbor
+        #neighbor will be (0)*12 if there is not enough neighbor
+        self.count = 0
         self.obs_dim = 148
         self.observation_space = spaces.Box(
             low=0, high=1.0, shape=(self.obs_dim,), dtype=np.float32
@@ -191,46 +193,225 @@ class SagsEnv(gym.Env):
 
         self.steps = 0
         self.current_request = None
+        self.nodes_passed = []
         self.neighbor_ids = [None]*10 #Store the id of 10 nearest not passed nodes
         self.current_node = None #Store the current node
+        self.node_passed_ids = set() #Store the id of nodes passed to quickly check if a node has been passed
 
-    def reset(self):
-        self.current_node = None
-        self.neighbor_ids = [None]*10
-        self.current_node = None
-        self.connections.clear()
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
+        
+        # Reset environment-level variables
         self.steps = 0
-        self.groundspace = GroundSpace()
+        self.connections.clear()
+        self.neighbor_ids = [None] * 10
+        self.current_node = None
+
+        # Reset world components 
+        #Dont need since we will continue to train in this world
+        # self.groundspace = GroundSpace()
+        # self.network = Network()
+
+        # Extract node info
+        self.nodes_passed.clear()
+        self.node_passed_ids.clear()
+        self.num_nodes = len(self.nodes)
+
+        # Generate first request
         self._new_request()
-        return self._get_obs()
+        #nodes have been defined in network class
+        #current node initally is none since we start from user
+        self.current_node = None
+
+        # Return normalized initial observation
+        obs = self._get_obs()
+        return obs
+
 
     def _new_request(self):
         """Spawn a new client request"""
-        src = np.random.randint(0, self.num_nodes)
-        dst = np.random.randint(0, self.num_nodes)
-        while dst == src:
-            dst = np.random.randint(0, self.num_nodes)
-
-        req = {
-            "src": src,
-            "dst": dst,
-            "bw_req": np.random.uniform(0.05, 0.2),
-            "cpu_req": np.random.uniform(0.05, 0.2),
-            "power_req": np.random.uniform(0.05, 0.2),
-            "ttl": np.random.randint(50, 200)
-        }
-        self.current_request = req
+        client_location = random_user()
+        service_type = random.choice(list(ServiceType))
+        QoSProfiles_service = QoSProfiles[service_type]
+        uplink_required = round(random.uniform(*QoSProfiles_service["uplink"]), 2)
+        downlink_required = round(random.uniform(*QoSProfiles_service["downlink"]), 2)
+        latency_required = round(random.uniform(*QoSProfiles_service["latency"]), 2)
+        reliability_required = round(random.uniform(*QoSProfiles_service["reliability"]), 4)
+        cpu_required = random.randint(*QoSProfiles_service["cpu"])
+        power_required = random.randint(*QoSProfiles_service["power"])
+        packet_size = random.randint(1, 100)  # MB
+        demand_timeout = random.randint(5000, 40000)  # steps
+        priority = random.randint(*QoSProfiles_service["priority"])
+        new_request = request(
+            request_id=self.count,
+            type=service_type,
+            source_location=client_location,
+            uplink_required=uplink_required,
+            downlink_required=downlink_required,
+            latency_required=latency_required,
+            reliability_required=reliability_required,
+            cpu_required=cpu_required,
+            power_required=power_required,
+            packet_size=packet_size,
+            priority=priority,
+            demand_timeout=demand_timeout
+        )
+        self.current_request = new_request
+        self.count += 1
+        
 
     def _get_obs(self):
         """Return request-local state vector"""
-        r = self.current_request
-        src_feat = self.nodes[r["src"]]
-        dst_feat = self.nodes[r["dst"]]
-        return np.concatenate([
-            src_feat,     # 3 features
-            dst_feat,     # 3 features
-            [r["bw_req"], r["cpu_req"], r["power_req"], r["ttl"]/200.0, r["src"]/self.num_nodes, r["dst"]/self.num_nodes]
-        ]).astype(np.float32)
+        Maximum_resource_usage = 0.9 #Maximum resource usage percentage of a node, to avoid overloading
+        if self.current_request.type == ServiceType.Emergency:
+            Maximum_resource_usage = 0.95
+        obs = np.zeros(self.obs_dim, dtype=np.float32)
+        service_index = self.current_request.type.value - 1
+        obs[service_index] = 1.0  # One-hot encoding of service type
+        obs[8] = len(self.nodes_passed) / 10.0  # Current hop / 10
+        obs[9] = min(self.current_request.uplink_required / 20.0, 1.0)  # Uplink required / max uplink
+        obs[10] = min((self.current_request.uplink_allocated / self.current_request.uplink_required
+                   if self.current_request.uplink_required > 0 else 0.0), 1.0)  # Uplink allocated / uplink required
+        obs[11] = min(self.current_request.downlink_required / 100.0, 1.0)  # Downlink required / max downlink
+        obs[12] = min((self.current_request.downlink_allocated / self.current_request.downlink_required
+                   if self.current_request.downlink_required > 0 else 0.0), 1.0)  # Downlink allocated / downlink required
+        lat_rad = math.radians(self.current_request.source_location["lat"])
+        lon_rad = math.radians(self.current_request.source_location["lon"])
+        obs[13] = (math.sin(lat_rad) + 1) / 2.0  # Normalized sin(lat)
+        obs[14] = (math.cos(lat_rad) + 1) / 2.0  # Normalized cos(lat)
+        obs[15] = (math.sin(lon_rad) + 1) / 2.0  # Normalized sin(lon)
+        obs[16] = (math.cos(lon_rad) + 1) / 2.0  # Normalized cos(lon)
+        obs[17] = min(self.current_request.source_location["alt"] / 10000000.0, 1.0)  # Normalized altitude
+        obs[18] = min(self.current_request.reliability_required / 1.0, 1.0)  # Reliability required / max reliability
+        obs[19] = min((self.current_request.reliability_actual / self.current_request.reliability_required
+                   if self.current_request.reliability_required > 0 else 0.0), 1.0)  # Current reliability / reliability required
+        obs[20] = min(self.current_request.latency_required / 500.0, 1.0)  # Required latency / max latency
+        obs[21] = min((self.current_request.latency_required / self.current_request.latency_actual
+                   if self.current_request.latency_required > 0 else 0.0), 1.0)  # Latency required / latency currently
+        obs[22] = min(self.current_request.priority / 10.0, 1.0)  # Priority / max priority
+        obs[23] = min(self.current_request.cpu_required / 50.0, 1.0)  # CPU required / max cpu
+        obs[24] = min(self.current_request.power_required / 100.0, 1.0)  # Power required / max power
+        connectable_nodes = []
+        if self.current_node:
+            connectable_nodes = self.network.find_connectable_nodes(self.current_node.id)
+        else:
+            connectable_nodes = self.network.find_connectable_nodes_for_location(
+                self.current_request.source_location["lat"],
+                self.current_request.source_location["lon"],
+                self.current_request.source_location["alt"]
+            )
+        neighbors = []
+        for node in connectable_nodes:
+            if node.id not in self.node_passed_ids:
+                neighbors.append(node)
+        obs[25] = min(len(neighbors) / 10.0, 1.0)  # Number of neighbors / max neighbors
+        users_in_range_count = self.groundspace.nearby_count(
+            self.current_request.source_location["lat"],
+            self.current_request.source_location["lon"],
+            2500
+        )
+        obs[26] = min(users_in_range_count / 10000.0, 1.0)  # Number of users in range of 2500km / 10000
+        obs[27] = min(self.current_request.real_timeout / self.current_request.demand_timeout
+                   if self.current_request.demand_timeout > 0 else 0.0, 1.0)  # Timeout remaining / estimated timeout
+        for i in range(10):
+            if i < len(neighbors):
+                current_location = self.current_node.position if self.current_node else self.current_request.source_location
+                node = neighbors[i]
+                self.neighbor_ids[i] = node.id
+                distance = node.calculate_distance(
+                    current_location["lat"],
+                    current_location["lon"],
+                    current_location["alt"]
+                )
+                obs[28 + i * 12] = min(distance / 1e7, 1.0)  # Distance / 10000km
+                link_delay = calc_link_delay_ms(
+                    distance,
+                    self.current_node.typename if self.current_node else "user",
+                    node.typename,
+                    self.current_request.type
+                )
+                obs[29 + i * 12] = min(link_delay / 500.0, 1.0)  # Latency to node / max latency
+                link_reliab = link_reliability(
+                    self.current_node.typename if self.current_node else "user",
+                    node.typename,
+                    distance
+                )
+                obs[30 + i * 12] = min(link_reliab / 1.0, 1.0)  # Reliability to node / max reliability
+                uplink_available = max(node.resources["uplink"]*Maximum_resource_usage - node.resources_used["uplink"], 0)
+                obs[31 + i * 12] = min(uplink_available / self.current_request.uplink_allocated
+                               if self.current_request.uplink_allocated > 0 else 1.0, 1.0)  # Uplink available / current uplink
+                downlink_available = max(node.resources["downlink"]*Maximum_resource_usage - node.resources_used["downlink"], 0)
+                obs[32 + i * 12] = min(downlink_available / self.current_request.downlink_allocated
+                               if self.current_request.downlink_allocated > 0 else 1.0, 1.0)  # Downlink available / current downlink
+                if node.typename != "groundstation":
+                    obs[33 + i * 12] = 1.0 # CPU available / required cpu always 1 for relay nodes
+                    obs[34 + i * 12] = 1.0 # Power available / required power always 1 for relay nodes
+                else:
+                    cpu_available = max(node.resources["cpu"]*Maximum_resource_usage - node.resources_used["cpu"], 0)
+                    obs[33 + i * 12] = min(cpu_available / self.current_request.cpu_required
+                                   if self.current_request.cpu_required > 0 else 1.0, 1.0)  # CPU available / required cpu
+                    power_available = max(node.resources["power"]*Maximum_resource_usage - node.resources_used["power"], 0)
+                    obs[34 + i * 12] = min(power_available / self.current_request.power_required
+                                   if self.current_request.power_required > 0 else 1.0, 1.0)  # Power available / required power
+                obs[35 + i * 12] = 1.0 if node.typename == "groundstation" else 0.0  # GS or not
+                estimate_timeout = max_timeout = self.current_request.real_timeout
+                if self.current_node:
+                    if self.current_node.typename == "satellite" and node.typename == "satellite":
+                        current_sat = self.network.get_satellite_by_id(self.current_node.id)
+                        target_sat = self.network.get_satellite_by_id(node.id)
+                        if current_sat and target_sat:
+                            estimate_timeout = current_sat.estimate_visible_time_sat(target_sat, max_time=max_timeout)
+                    elif self.current_node.typename == "satellite":
+                        current_sat = self.network.get_satellite_by_id(self.current_node.id)
+                        if current_sat:
+                            estimate_timeout = current_sat.estimate_visible_time_gs(node, max_time=max_timeout)
+                obs[36 + i * 12] = min(estimate_timeout / self.current_request.real_timeout
+                               if self.current_request.real_timeout > 0 else 1.0, 1.0)  # Timeout / user estimate timeout
+                users_in_range_count = self.groundspace.nearby_count(
+                    node.position["lat"],
+                    node.position["lon"],
+                    2500
+                )
+                obs[37 + i * 12] = min(users_in_range_count / 10000.0, 1.0)  # Numbers of user in range 2500 km / 10000
+                gs_distance, gs_id = self.network.distance_to_nearest_gs(
+                    node.position["lat"],
+                    node.position["lon"],
+                    node.position["alt"]
+                )
+                obs[38 + i * 12] = min(gs_distance / 1e7, 1.0) if gs_distance is not None else 1.0  # Distance to nearest GS
+                if gs_id is not None:
+                    gs = self.network.get_gs_by_id(gs_id)
+                    initial_mark = 0
+                    #Rate by uplink, downlink, cpu, power compared to the current allocated and required
+                    gs_uplink_available = max(gs.resources["uplink"]*Maximum_resource_usage - gs.resources_used["uplink"], 0)
+                    rate_uplink = gs_uplink_available / (self.current_request.uplink_allocated
+                                           if self.current_request.uplink_allocated > 0 else self.current_request.uplink_required)
+                    initial_mark += int(rate_uplink * 3)  # Up to 3
+                    gs_downlink_available = max(gs.resources["downlink"]*Maximum_resource_usage - gs.resources_used["downlink"], 0)
+                    rate_downlink = gs_downlink_available / (self.current_request.downlink_allocated
+                                             if self.current_request.downlink_allocated > 0 else self.current_request.downlink_required)
+                    initial_mark += int(rate_downlink * 3)  # Up to 3
+                    gs_cpu_available = max(gs.resources["cpu"]*Maximum_resource_usage - gs.resources_used["cpu"], 0)
+                    rate_cpu = gs_cpu_available / (self.current_request.cpu_required
+                                       if self.current_request.cpu_required > 0 else 1)
+                    initial_mark += int(rate_cpu * 2)  # Up to 2
+                    gs_power_available = max(gs.resources["power"]*Maximum_resource_usage - gs.resources_used["power"], 0)
+                    rate_power = gs_power_available / (self.current_request.power_required
+                                            if self.current_request.power_required > 0 else 1)
+                    initial_mark += int(rate_power * 2)  # Up to 2
+                    obs[39 + i * 12] = min(initial_mark / 10.0, 1.0)  # Remark of nearest GS
+                else:
+                    obs[39 + i * 12] = 0.0  # No GS found, set remark to 0
+            else:
+                self.neighbor_ids[i] = None
+                #pad with zeros
+                obs[28 + i * 12: 40 + i * 12] = 0.0
+        return obs
+                    
+                    
+                
+        
+            
 
     #Khanh's work here, ChatGPT recommended adn then modified
     #Note that you should add some priority profile for some Qos criteria later
@@ -319,3 +500,37 @@ def link_reliability(type_a: str, type_b: str, distance_m: float) -> float:
     return math.exp(-gamma * d_km)
     #total path reliability = product of all link reliabilities
 
+def random_user():
+    regions = [
+        {"name": "China",          "latRange": (18, 54),   "lonRange": (73, 135),  "weight": 20},
+        {"name": "India",          "latRange": (8, 37),    "lonRange": (68, 97),   "weight": 18},
+        {"name": "Europe",         "latRange": (35, 60),   "lonRange": (-10, 40),  "weight": 15},
+        {"name": "USA",            "latRange": (25, 50),   "lonRange": (-125, -66),"weight": 15},
+        {"name": "Brazil",         "latRange": (-35, 5),   "lonRange": (-74, -34), "weight": 7},
+        {"name": "Nigeria",        "latRange": (4, 14),    "lonRange": (3, 15),    "weight": 5},
+        {"name": "Japan",          "latRange": (30, 45),   "lonRange": (129, 146), "weight": 5},
+        {"name": "SoutheastAsia",  "latRange": (-10, 20),  "lonRange": (95, 120),  "weight": 5},
+        {"name": "Other",          "latRange": (-90, 90),  "lonRange": (-180, 180),"weight": 10},
+    ]
+
+    total_weight = sum(r["weight"] for r in regions)
+    rand = random.random() * total_weight
+
+    # Weighted region selection
+    selected_region = None
+    for r in regions:
+        if rand < r["weight"]:
+            selected_region = r
+            break
+        rand -= r["weight"]
+
+    # Generate latitude and longitude within range
+    lat = round(random.uniform(*selected_region["latRange"]), 4)
+    lon = round(random.uniform(*selected_region["lonRange"]), 4)
+    alt = random.uniform(0, 2000)  # Altitude in meters
+
+    # 60% chance of supporting 5G
+    # support_5g = random.random() < 0.6
+    support_5g = True
+
+    return {"lat": lat, "lon": lon, "alt" : alt}

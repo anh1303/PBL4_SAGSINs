@@ -3,6 +3,7 @@ from pymongo.server_api import ServerApi
 from satellite import Satellite
 from gs import Gs
 from ss import Ss
+from node import node
 
 
 
@@ -22,20 +23,20 @@ class Network:
     def __init__(self):
         # chỉ load dữ liệu lần đầu khi nodes rỗng
         if not Network.nodes:
-            # Load satellites
-            self.collection = db["satellites"]
-            for sat in self.collection.find():
-                self.add_node(Satellite(sat))
-
             # Load ground stations
             self.collection = db["groundstations"]
             for gs in self.collection.find():
                 self.add_node(Gs(gs))
-
+                
             # Load sea stations
             self.collection = db["seastations"]
             for ss in self.collection.find():
                 self.add_node(Ss(ss))
+            
+            # Load satellites
+            self.collection = db["satellites"]
+            for sat in self.collection.find():
+                self.add_node(Satellite(sat))
 
         # default collection for satellite updates
         self.collection = db["satellites"]
@@ -117,6 +118,11 @@ class Network:
             return []
 
         connectable = []
+        connectable_with_distance = {
+            "groundstation": [],
+            "seastation": [],
+            "sat": []
+        }
         for target_id, target in Network.nodes.items():
             if target_id == node_id:
                 continue
@@ -131,11 +137,21 @@ class Network:
                     target.position["lon"],
                     target.position["alt"],
                     collection=self.collection if target.typename == "satellite" else None,
+                    is_sat = target.typename == "satellite"
                 ):
-                    connectable.append(target)
+                    connectable_with_distance[target.typename].append((target, source.calculate_distance(
+                        target.position["lat"],
+                        target.position["lon"],
+                        target.position["alt"],
+                        mode=mode
+                    )))
             except Exception as e:
                 print(f"⚠️ Error checking {source.id}->{target.id}: {e}")
 
+        # sắp xếp theo khoảng cách giam dan va theo loai
+        for typename in ["groundstation", "seastation", "sat"]:
+            connectable_with_distance[typename].sort(key=lambda x: x[1])
+            connectable.extend([item[0] for item in connectable_with_distance[typename]])
         return connectable
     
 
@@ -148,7 +164,11 @@ class Network:
         :param mode: kiểu tính khoảng cách ('3d', 'surface', hoặc 'auto')
         :return: list các node connectable
         """
-        connectable = []
+        connectable_with_distance = {
+            "groundstation": [],
+            "seastation": [],
+            "sat": []
+        }
         for target_id, target in self.nodes.items():
             if not support5G and target.typename == "satellite":
                 continue
@@ -161,10 +181,15 @@ class Network:
                     alt,
                     collection=self.collection if target.typename == "satellite" else None,
                 ):
-                    connectable.append(target)
+                    connectable_with_distance[target.typename].append((target, target.calculate_distance(lat, lon, alt, mode=mode)))
             except Exception as e:
                 print(f"⚠️ Error checking location->{target.id}: {e}")
 
+        # sắp xếp theo khoảng cách giam dan va theo loai
+        connectable = []
+        for typename in ["groundstation", "seastation", "sat"]:
+            connectable_with_distance[typename].sort(key=lambda x: x[1])
+            connectable.extend([item[0] for item in connectable_with_distance[typename]])
         return connectable
 
     def get_adjacency_list(self, mode="auto"):
@@ -176,7 +201,7 @@ class Network:
             adj[node_id] = [n.id for n in self.find_connectable_nodes(node_id, mode)]
         return adj
     
-    def distance_to_nearest_gs(self, node, mode="auto"):
+    def distance_to_nearest_gs(self, node: node, mode="auto"):
         """
         Tính khoảng cách đến satellite gần nhất từ node
         :param node: đối tượng node (node, gs, ss)
@@ -184,15 +209,17 @@ class Network:
         :return: khoảng cách (mét) hoặc None nếu không có satellite nào
         """
         min_dist = None
+        groundstation_id = None
         for target_id, target in Network.groundstations.items():
             try:
                 dist = target.calculate_distance(node.position["lat"], node.position["lon"], node.position["alt"], mode=mode)
                 if min_dist is None or dist < min_dist:
                     min_dist = dist
+                    groundstation_id = target_id
             except Exception as e:
                 print(f"⚠️ Error calculating distance to {target.id}: {e}")
 
-        return min_dist
+        return (min_dist, groundstation_id)
     
     def distance_to_nearest_gs(self, lat, lon, alt=0, mode="auto"):
         """
@@ -213,3 +240,11 @@ class Network:
                 print(f"⚠️ Error calculating distance to {target.id}: {e}")
 
         return min_dist
+    
+    def get_satellite_by_id(self, sat_id) -> Satellite:
+        """Lấy satellite theo id"""
+        return Network.satellites.get(sat_id, None)
+    
+    def get_gs_by_id(self, gs_id) -> Gs:
+        """Lấy ground station theo id"""
+        return Network.groundstations.get(gs_id, None)

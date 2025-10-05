@@ -13,8 +13,8 @@ db = client[DB_NAME]
 # Fixed pools (Mbps)
 # -----------------------------
 FIXED_POOLS = {
-    "groundstations": {"uplink": 10000, "downlink": 20000},
-    "seastations": {"uplink": 2000, "downlink": 5000, "isl": 1000},
+    "groundstations": {"uplink": 5000, "downlink": 10000, "cpu": 5000, "power": 8000},
+    "seastations": {"uplink": 2000, "downlink": 4000, "isl": 1000},
 }
 
 FIXED_POOL2 = {
@@ -35,6 +35,10 @@ def migrate_collection(name, pools):
             "resources.uplink": pools["uplink"],
             "resources.downlink": pools["downlink"],
         }
+        if "cpu" in pools:  # groundstations only
+            update_fields["resources.cpu"] = pools["cpu"]
+        if "power" in pools:  # groundstations only
+            update_fields["resources.power"] = pools["power"]
         if "isl" in pools:  # seastations only
             update_fields["resources.isl"] = pools["isl"]
 
@@ -108,6 +112,6 @@ def migrate_satellites_flat():
 # Run all migrations
 # -----------------------------
 # migrate_satellites()
-# for cname, pools in FIXED_POOLS.items():
-#     migrate_collection(cname, pools)
-migrate_satellites_flat()
+for cname, pools in FIXED_POOLS.items():
+    migrate_collection(cname, pools)
+# migrate_satellites_flat()
