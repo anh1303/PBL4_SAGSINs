@@ -11,6 +11,7 @@ class node():
         self.resources = resources
         self.connections = []
         self.resources_used = resources.copy()
+        self.free_resources = resources.copy()
         for i in self.resources_used:
             self.resources_used[i] = 0
         self.typename = "node"
