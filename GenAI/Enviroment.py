@@ -49,7 +49,8 @@ PROC_DELAY_BASE_MS = {
     "GEO": 10,           # GEO ground processing often higher ~10 ms
     "seastation": 6,     # ship/sea gateways ~6 ms
     "uav": 6,            # UAV processing ~6 ms
-    "groundstation": 10  # GS fast-path ~10 ms (but can be reduced for emergency)
+    "groundstation": 10,  # GS fast-path ~10 ms (but can be reduced for emergency)
+    "user" : 6
 }
 
 
