@@ -10,6 +10,9 @@ class Gs(node):
         self.typename = self.type = "groundstation"
 
     def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection=None, is_sat=False):
+        #if the target is a satellite, we must check at the satellite side
+        if is_sat:
+            return False
         dist_km = self.calculate_distance(dev_lat, dev_lon, dev_alt, mode="surface") / 1000
         return dist_km <= self.coverage_radius_km
 
