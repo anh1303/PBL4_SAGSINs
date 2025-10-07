@@ -440,19 +440,6 @@ class SagsEnv(gym.Env):
                         current_sat = self.network.get_satellite_by_id(self.current_node.id)
                         if current_sat:
                             estimate_timeout = current_sat.estimate_visible_time(node.position["lat"], node.position["lon"], node.position["alt"], max_time=max_timeout)
-                        elif node.typename == "satellite":
-                            target_sat = self.network.get_satellite_by_id(node.id)
-                            if target_sat:
-                                estimate_timeout = target_sat.estimate_visible_time(self.current_node.position["lat"], self.current_node.position["lon"], self.current_node.position["alt"], max_time=max_timeout)
-                    elif node.typename == "satellite":
-                        target_sat = self.network.get_satellite_by_id(node.id)
-                        if target_sat:
-                            estimate_timeout = target_sat.estimate_visible_time(
-                                self.current_request.source_location["lat"],
-                                self.current_request.source_location["lon"],
-                                self.current_request.source_location["alt"],
-                                max_time=max_timeout
-                            )
                 obs[36 + i * 12] = min(estimate_timeout / self.current_request.real_timeout
                             if self.current_request.real_timeout > 0 else 1.0, 1.0)  # Timeout / user estimate timeout
                 users_in_range_count = self.groundspace.nearby_count(
@@ -496,8 +483,13 @@ class SagsEnv(gym.Env):
                 obs[28 + i * 12: 40 + i * 12] = 0.0
         return obs
 
-
-
+    
+    RESERVE_RATIO = 0.10 # dành cho emergency 10%
+    INVALID_ACTION_PENALTY = 0.1
+    DONE_ON_MAX_STEPS = True
+    INCLUDE_REMARK = False # True nếu đã remark neighbor nearest
+    HOP_PENALTY = 0.01  # phạt mỗi bước -> thúc đẩy Agent đi ngắn hơn
+    BASE_REWARD = 1.0
 
 
 
