@@ -41,7 +41,7 @@ class Network:
         # default collection for satellite updates
         self.collection = db["satellites"]
 
-    def add_node(self, node_obj):
+    def add_node(self, node_obj: node):
         """Thêm 1 node mới vào hệ thống"""
         Network.nodes[node_obj.id] = node_obj
         if node_obj.typename == "satellite":
@@ -84,7 +84,7 @@ class Network:
             if not support5G and target.typename == "satellite":
                 continue
 
-            # gọi hàm can_connect của source
+            # gọi hàm can_connect của source va target
             try:
                 ok = (
                     source.can_connect(

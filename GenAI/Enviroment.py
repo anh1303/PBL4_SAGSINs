@@ -406,7 +406,20 @@ class SagsEnv(gym.Env):
                     elif self.current_node.typename == "satellite":
                         current_sat = self.network.get_satellite_by_id(self.current_node.id)
                         if current_sat:
-                            estimate_timeout = current_sat.estimate_visible_time_gs(node, max_time=max_timeout)
+                            estimate_timeout = current_sat.estimate_visible_time(node.position["lat"], node.position["lon"], node.position["alt"], max_time=max_timeout)
+                    elif node.typename == "satellite":
+                        target_sat = self.network.get_satellite_by_id(node.id)
+                        if target_sat:
+                            estimate_timeout = target_sat.estimate_visible_time(self.current_node.position["lat"], self.current_node.position["lon"], self.current_node.position["alt"], max_time=max_timeout)
+                elif node.typename == "satellite":
+                    target_sat = self.network.get_satellite_by_id(node.id)
+                    if target_sat:
+                        estimate_timeout = target_sat.estimate_visible_time(
+                            self.current_request.source_location["lat"],
+                            self.current_request.source_location["lon"],
+                            self.current_request.source_location["alt"],
+                            max_time=max_timeout
+                        )
                 obs[36 + i * 12] = min(estimate_timeout / self.current_request.real_timeout
                                if self.current_request.real_timeout > 0 else 1.0, 1.0)  # Timeout / user estimate timeout
                 users_in_range_count = self.groundspace.nearby_count(
