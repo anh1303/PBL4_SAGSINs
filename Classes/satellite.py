@@ -143,7 +143,7 @@ class Satellite(node):
         for node in nodes:
             if hasattr(node, 'id') and node.id == self.id:
                 continue
-            if self.can_connect(node.position["lat"], node.position["lon"], node.position["alt"]):
+            if self.can_connect(node.position["lat"], node.position["lon"], node.position["alt"], is_sat = node.typename == "satellite"):
                 neighbors.append(node)
         return neighbors
     

@@ -1,0 +1,20 @@
+[
+    {
+    "_id": "GS_016",
+    "gs_id": "GS_Beijing",
+    "location": {
+        "lat": 39.9042,
+        "lon": 116.4074
+    },
+    "coverage_radius_km": 2700,
+    "resources": {
+        "cpu": 5000,
+        "power": 8000,
+        "downlink": 10000,
+        "uplink": 5000
+    },
+    "status": "active",
+    "connected_satellites": [],
+    "connected_users": []
+    }
+]
