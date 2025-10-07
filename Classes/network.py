@@ -59,53 +59,7 @@ class Network:
     def get_node(self, node_id):
         """Lấy node theo id"""
         return Network.nodes.get(node_id, None)
-
-    def find_connectable_nodes(self, node_id, mode="auto", support5G=True):
-        """
-        Tìm các node mà node_id có thể kết nối tới.
-        Kết nối được xem là hợp lệ nếu ít nhất 1 trong 2 chiều có thể kết nối.
-        
-        :param node_id: id của node nguồn
-        :param mode: kiểu tính khoảng cách ('3d', 'surface', hoặc 'auto')
-        :param support5G: nếu False thì bỏ qua kết nối với satellite
-        :return: list các node connectable
-        """
-        source = self.get_node(node_id)
-        if not source:
-            return []
-
-        connectable = []
-        for target_id, target in Network.nodes.items():
-            if target_id == node_id:
-                continue
-
-            if not support5G and target.typename == "satellite":
-                continue
-
-            try:
-                # Kiểm tra 2 chiều
-                ok = (
-                    source.can_connect(
-                        target.position["lat"],
-                        target.position["lon"],
-                        target.position["alt"],
-                        collection=self.collection if target.typename == "satellite" else None,
-                    )
-                    or target.can_connect(
-                        source.position["lat"],
-                        source.position["lon"],
-                        source.position["alt"],
-                        collection=self.collection if source.typename == "satellite" else None,
-                    )
-                )
-
-                if ok:
-                    connectable.append(target)
-
-            except Exception as e:
-                print(f"⚠️ Error checking {source.id}->{target.id}: {e}")
-
-        return connectable
+    
     def find_connectable_nodes(self, node_id, mode="auto", support5G=True):
         """
         Tìm các node mà node_id có thể kết nối tới
@@ -132,13 +86,23 @@ class Network:
 
             # gọi hàm can_connect của source
             try:
-                if source.can_connect(
-                    target.position["lat"],
-                    target.position["lon"],
-                    target.position["alt"],
-                    collection=self.collection if target.typename == "satellite" else None,
-                    is_sat = target.typename == "satellite"
-                ):
+                ok = (
+                    source.can_connect(
+                        target.position["lat"],
+                        target.position["lon"],
+                        target.position["alt"],
+                        collection=self.collection if target.typename == "satellite" else None,
+                        is_sat = target.typename == "satellite",
+                    )
+                    or target.can_connect(
+                        source.position["lat"],
+                        source.position["lon"],
+                        source.position["alt"],
+                        collection=self.collection if source.typename == "satellite" else None,
+                        is_sat = source.typename == "satellite",
+                    )
+                )
+                if ok:
                     connectable_with_distance[target.typename].append((target, source.calculate_distance(
                         target.position["lat"],
                         target.position["lon"],
