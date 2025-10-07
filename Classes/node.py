@@ -60,27 +60,21 @@ class node():
     def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection = None, is_sat = False):
         raise NotImplementedError("This method should be implemented in subclasses")
 
+    #giải phóng tài nguyên cấp phát cho node Relay (up/down)
+    def release_resource_relay(self, req: request):
+        # Release resources
+        self.free_resources["uplink"] += req.uplink_allocated
+        self.free_resources["downlink"] += req.downlink_allocated
+        
+        return 
 
-    #giải phóng tài nguyên đã cấp phát cho request
+    #giải phóng tài nguyên đã cấp phát cho request (4 QoS)
     def release_resource(self, req: request):
-        # --- Find the connection ---
-        conn = next((c for c in self.connections if c["request_id"] == req.request_id), None)
-        if not conn:
-            return  # No such connection
-
-        # --- Release resources ---
-        self.free_resources["uplink"] += conn["uplink"]
-        self.free_resources["downlink"] += conn["downlink"]
-        self.free_resources["cpu"] += conn["cpu"]
-        self.free_resources["power"] += conn["power"]
-
-        # --- Remove connection record ---
-        self.connections.remove(conn)
-        req.uplink_allocated = 0
-        req.downlink_allocated = 0
-        req.cpu_allocated = 0
-        req.power_allocated = 0
-        req.path = []  # Clear the path since resources are released
+        # Release resources
+        self.free_resources["uplink"] += req.uplink_allocated
+        self.free_resources["downlink"] += req.downlink_allocated
+        self.free_resources["cpu"] += req.cpu_allocated 
+        self.free_resources["power"] += req.power_allocated
         
         return 
     

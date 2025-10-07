@@ -53,6 +53,28 @@ PROC_DELAY_BASE_MS = {
     "user": 6
 }
 
+# (w_lat, w_rel, w_up, w_down)
+BonusProfilesForService = {
+    # Latency -> Reliability -> UP/DOWN Link
+    ServiceType.EMERGENCY:      (0.5, 0.3, 0.1, 0.1),
+    ServiceType.CONTROL:        (0.5, 0.3, 0.1, 0.1),
+    ServiceType.VOICE:          (0.5, 0.3, 0.1, 0.1),
+
+    # UP/DOWN Link -> Reliability -> Latency
+    ServiceType.VIDEO:          (0.1, 0.2, 0.4, 0.3),
+    ServiceType.STREAMING:      (0.1, 0.2, 0.4, 0.3),
+    ServiceType.BULK_TRANSFER:  (0.1, 0.2, 0.4, 0.3),
+
+    # DATA: UP/DOWN -> Latency -> Reliability
+    ServiceType.DATA:           (0.2, 0.1, 0.35, 0.35),
+
+    # IOT: Reliability -> Latency -> UP/DOWN
+    ServiceType.IOT:            (0.3, 0.4, 0.15, 0.15),
+}
+
+DEFAULT_WEIGHTS = (0.25, 0.25, 0.25, 0.25)
+
+
 
 
 # NOTE: Using ServiceType from request.py
@@ -216,6 +238,9 @@ class SagsEnv(gym.Env):
         self.neighbor_ids = [None]*10 #Store the id of 10 nearest not passed nodes
         self.current_node = None #Store the current node
         self.node_passed_ids = set() #Store the id of nodes passed to quickly check if a node has been passed
+        
+        #Để rollBack
+        self.alloc_ledger = {} # {req_id: [("relay", node, up_used, dn_used), ("gs", node, cpu_used, power_used), ...]}
     
     #Hard reset the environment, re-generate the network and groundspace
     def reset(self, seed=None, options=None):
@@ -242,6 +267,8 @@ class SagsEnv(gym.Env):
         #nodes have been defined in network class
         #current node initally is none since we start from user
         self.current_node = None
+        
+        self.alloc_ledger.clear()
 
 
         # Return normalized initial observation
@@ -266,6 +293,7 @@ class SagsEnv(gym.Env):
         self.nodes_passed.clear()
         self.node_passed_ids.clear()
         
+        self.alloc_ledger.clear()
 
         # Generate first request
         self._new_request()
@@ -411,7 +439,20 @@ class SagsEnv(gym.Env):
                     elif self.current_node.typename == "satellite":
                         current_sat = self.network.get_satellite_by_id(self.current_node.id)
                         if current_sat:
-                            estimate_timeout = current_sat.estimate_visible_time_gs(node, max_time=max_timeout)
+                            estimate_timeout = current_sat.estimate_visible_time(node.position["lat"], node.position["lon"], node.position["alt"], max_time=max_timeout)
+                        elif node.typename == "satellite":
+                            target_sat = self.network.get_satellite_by_id(node.id)
+                            if target_sat:
+                                estimate_timeout = target_sat.estimate_visible_time(self.current_node.position["lat"], self.current_node.position["lon"], self.current_node.position["alt"], max_time=max_timeout)
+                    elif node.typename == "satellite":
+                        target_sat = self.network.get_satellite_by_id(node.id)
+                        if target_sat:
+                            estimate_timeout = target_sat.estimate_visible_time(
+                                self.current_request.source_location["lat"],
+                                self.current_request.source_location["lon"],
+                                self.current_request.source_location["alt"],
+                                max_time=max_timeout
+                            )
                 obs[36 + i * 12] = min(estimate_timeout / self.current_request.real_timeout
                             if self.current_request.real_timeout > 0 else 1.0, 1.0)  # Timeout / user estimate timeout
                 users_in_range_count = self.groundspace.nearby_count(
@@ -480,35 +521,52 @@ class SagsEnv(gym.Env):
             maximum_usage = 0.95
         
         total_upLink, total_downLink, total_cpu, total_power = node_obj.get_total_resources()
-        self._get_totals(node_obj)
         free_upLink, free_downLink, free_cpu, free_power = node_obj.get_free_resources()
+        
+                    
         cpu_need = req_obj.cpu_required
         power_need = req_obj.power_required
         
-        #tỉ lệ dùng sau khi cấp đã normalize
-        used_cpu_after = (total_cpu - (free_cpu - cpu_need)) / (total_cpu + 1e-6)
-        used_power_after = (total_power - (free_power - power_need)) / (total_power + 1e-6)
+        upLink_need = req_obj.uplink_required
+        downLink_need = req_obj.downlink_requireds
         
-        # Thưởng nhẹ nếu dưới 50%
-        if used_cpu_after < 0.50 or used_power_after < 0.50:
-            return 0.5
+        over_1, over_2 = 0.0, 0.0
         
-        #Phạt nặng nếu vượt 90%, phạt nhẹ nếu gần 90%
-        over_cpu = max(0.0, used_cpu_after - maximum_usage)
-        over_power = max(0.0, used_power_after - maximum_usage)
+        if node_obj.type != "GroundStation":
+            
+            #tỉ lệ dùng sau khi cấp đã normalize
+            used_cpu_after = (total_cpu - (free_cpu - cpu_need)) / (total_cpu + 1e-6)
+            used_power_after = (total_power - (free_power - power_need)) / (total_power + 1e-6)
+            
+            
+            # Thưởng nhẹ nếu dưới 50%
+            if used_cpu_after < 0.50 or used_power_after < 0.50:
+                return 0.5
+            
+            #Phạt nặng nếu vượt 90%, phạt nhẹ nếu gần 90%
+            over_1 = max(0.0, used_cpu_after - maximum_usage)
+            over_2 = max(0.0, used_power_after - maximum_usage)
+        
+        else:
+            used_upLink_after = (total_upLink - (free_upLink - upLink_need)) / (total_upLink + 1e-6)
+            used_downLink_after = (total_downLink - (free_downLink - downLink_need)) / (total_downLink + 1e-6)
+
+            # Thưởng nhẹ nếu dưới 50%s
+            if used_upLink_after < 0.50 or used_downLink_after < 0.50:
+                return 0.5
+
+            #Phạt nặng nếu vượt 90%, phạt nhẹ nếu gần 90%
+            over_1 = max(0.0, used_upLink_after - maximum_usage)
+            over_2 = max(0.0, used_downLink_after - maximum_usage)
         
         #hệ số penalty
         penalty = 20.0
-        return (- penalty * (over_cpu ** 2 + over_power ** 2))
+        return (- penalty * (over_1 ** 2 + over_2 ** 2))
     
-    #thưởng nhẹ ở EMER và thưởng lớn với GS
+    #thưởng nhẹ ở EMER
     def _emergency_bonus(self, node_obj, req_obj)->float:
-        #thưởng nhẹ ở GS + EMER
         if req_obj.type.name == "EMERGENCY":
             return 0.05
-        #thưởng lớn ở GS
-        if self._is_gs(node_obj):
-            return 5.0
         return 0.0
     
     
@@ -532,11 +590,118 @@ class SagsEnv(gym.Env):
             power_free = max(0.0, power_free - reserve_power)
         
         return upLink_free, downLink_free, cpu_free, power_free
+
+    #Tiêu tụ tài nguyên ở GS
+    def _consume_gs_resource(self, gs_node, req):
+        # free theo policy 90% (95% cho EMERGENCY)
+        _, _, cpu_free, power_free = self._free_resource(gs_node, req)
+
+        cpu_need, power_need = req.cpu_required, req.power_required
+        cpu_used   = min(cpu_need,  cpu_free)
+        power_used = min(power_need, power_free)
+
+        gs_node.free_resources["cpu"]   -= cpu_used
+        gs_node.free_resources["power"] -= power_used
+
+        cpu_ratio   = (cpu_used   / cpu_need)   if cpu_need   > 0 else 1.0
+        power_ratio = (power_used / power_need) if power_need > 0 else 1.0
+        
+        return cpu_used, power_used, cpu_ratio, power_ratio
+
+
+
+    
+    """
+        Tính lượng khả dụng trên cả tuyến
+        F = min( 1, tỉ lệ Up + down, tỉ lệ cpu + power)
+        với allow partial = False -> F mới thành công
+    """
+    def commit_resources_for_path(self, req) -> bool:
+        allocated = []  # [("relay", node, up_used, dn_used), ("gs", node, cpu_used, power_used)]
+
+        #Xác định GS
+        
+        gs_node = None
+        relays = []
+        for node_id in req.path:
+            n = self.network.get_node(node_id)
+            if n is None:
+                return False
+            if self._is_gs(n):
+                gs_node = n
+            else:
+                relays.append(n)
+        if gs_node is None:
+            return False
+
+        # Tính tỉ lệ tắc nghẽn
+        
+        #Trên relay: theo uplink/downlink
+        up_frac_min, dn_frac_min = float('inf'), float('inf')
+        for rn in relays:
+            up_free, dn_free, _, _ = rn.get_free_resources()
+            up_frac_min = min(up_frac_min, up_free / max(req.uplink_required, 1e-9))
+            dn_frac_min = min(dn_frac_min, dn_free / max(req.downlink_required, 1e-9))
+        f_path = min(up_frac_min, dn_frac_min) if relays else 1.0
+
+        #Trên GS: CPU/Power
+        _, _, cpu_free, power_free = self._free_resource(gs_node, req)
+        f_cpu   = cpu_free   / max(req.cpu_required, 1e-9)
+        f_power = power_free / max(req.power_required, 1e-9)
+        f_gs = min(f_cpu, f_power)
+
+        #Đồng nhất
+        f = max(0.0, min(1.0, f_path, f_gs))
+
+        #Kh Partial
+        if (not req.allow_partial) and (f < 1.0 - 1e-9):
+            return False
+        
+        if f <= 0.0:
+            return False
+
+        #yêu cầu theo độ tắc nghẽn
+        orig = (req.uplink_required, req.downlink_required, req.cpu_required, req.power_required)
+        req.uplink_required   = f * orig[0]
+        req.downlink_required = f * orig[1]
+        req.cpu_required      = f * orig[2]
+        req.power_required    = f * orig[3]
+
+        try:
+            #Trừ ở từng relay
+            for rn in relays:
+                up1, dn1, _, _ = rn.get_free_resources()
+                check_ok = rn.allocate_resource(req, allow_partial=False)
+                up2, dn2, _, _ = rn.get_free_resources()
+                
+                if not check_ok:
+                    # rollback phần đã trừ rồi trả lại req gốc
+                    for tag, node, *vals in reversed(allocated):
+                        if tag == "relay":
+                            node.free_resources["uplink"]  += vals[0]
+                            node.free_resources["downlink"] += vals[1]
+                    return False
+                
+                #used = phần đã cấp = x2 - x1
+                allocated.append(("relay", rn, max(0.0, up1 - up2), max(0.0, dn1 - dn2)))
+
+            #Trừ ở GS
+            cpu_used, power_used, _, _ = self._consume_gs_resource(gs_node, req)
+            allocated.append(("gs", gs_node, cpu_used, power_used))
+
+            self.alloc_ledger[req.request_id] = allocated
+            return True
+        finally:
+            #khôi phục required gốc
+            req.uplink_required, req.downlink_required, req.cpu_required, req.power_required = orig
+
+
+
     
     #Cấp phát từng chiều nếu có thể cấp phát 1 phần
     def _calculate_partial_min(self, node_obj, req_obj):
         # Verify total resources first
-        total_up, total_down, total_cpu, total_power = self._get_totals(node_obj)
+        total_up, total_down, total_cpu, total_power = node_obj.get_total_resources()
         if any(x <= 0 for x in [total_up, total_down, total_cpu, total_power]):
             self.logger.error("Invalid total resources")
             return 0, 0, 0, 0
@@ -666,15 +831,15 @@ class SagsEnv(gym.Env):
         
         #Latency -> Reliability -> Number of Hops
         if service in (ServiceType.EMERGENCY, ServiceType.CONTROL, ServiceType.VOICE):
-            w_lat, w_rel, w_up, w_down = 0.5, 0.3, 0.1, 0.1
+            w_lat, w_rel, w_up, w_down = BonusProfilesForService.get(service, DEFAULT_WEIGHTS)
             
         elif service in (ServiceType.VIDEO, ServiceType.STREAMING, ServiceType.DATA_TRANSFER):
-            w_lat, w_rel, w_up, w_down = 0.1, 0.2, 0.4, 0.3
+            w_lat, w_rel, w_up, w_down = BonusProfilesForService.get(service, DEFAULT_WEIGHTS)
             
         elif service in ServiceType.DATA:
-            w_lat, w_rel, w_up, w_down = 0.2, 0.1, 0.35, 0.35
+            w_lat, w_rel, w_up, w_down = BonusProfilesForService.get(service, DEFAULT_WEIGHTS)
         elif service in ServiceType.IOT:
-            w_lat, w_rel, w_up, w_down = 0.3, 0.4, 0.15, 0.15
+            w_lat, w_rel, w_up, w_down = BonusProfilesForService.get(service, DEFAULT_WEIGHTS)
             
         reward += EXTRA_REWARD * ( 0.5 - 
                                     w_lat * (1 - lat_ratio) -
@@ -716,23 +881,13 @@ class SagsEnv(gym.Env):
                 #kiểm tra GS -> Đích
                 if self.current_node and self._is_gs(self.current_node):
                     reward += self._calculate_reward(obs, 0.0, 0.0)
-                    #cộng phần cpu và power đã cấp phát
-                    cpu_used = req.cpu_required
-                    power_used = req.power_required
                     
-                    no
                     
                 else:
                     self.logger.warning("No available neighbors to step to")
                     
                     reward -= self.INVALID_ACTION_PENALTY
                     done = True
-                    #Giải phóng tài nguyên
-                    for conn in self.connections:
-                        for node_id in conn.path:
-                            node = self.network.get_node(node_id)
-                            if node:
-                                self.E_release_resources(node, conn)
                 
                 self._clear_episode()
                 
@@ -772,12 +927,11 @@ class SagsEnv(gym.Env):
             
             #kiểm tra up/down link
             if uplink < 0.5 or downlink < 0.5:
-                reward -= 2.0 * self.BASE_REWARD * (2.0 - uplink - downlink)  # phạt nặng nếu k đáp ứng 50% required
+                reward -= 2.0 * self.BASE_REWARD * (2.0 - uplink - downlink)  # phạt nặng nếu k đáp ứng 50% required + Kết thúc
+                
+                return self.soft_reset(), reward, False, {}
             elif uplink < 1.0 or downlink < 1.0:
                 reward -= self.BASE_REWARD * (2.0 - uplink - downlink) * 0.5
-
-                
-                return self.soft_reset, reward, False, {}
 
             #Cập nhật req
             self._accumulate_link(hop_lat_ms, hop_rel, req)
@@ -788,11 +942,6 @@ class SagsEnv(gym.Env):
             #Chi cap phat cpu va power khi den GS
             
 
-            #Cấp phát
-            check = chosen.allocate_resource(req, allow_partial = req.allow_partial)
-            if not check:
-                reward -= self.BASE_REWARD
-
             #Update đường đi + vị trí hiện tại
             req.path.append(getattr(chosen, "id", getattr(chosen, "name", "node")))
             self.nodes_passed.append(chosen)
@@ -801,18 +950,39 @@ class SagsEnv(gym.Env):
             self.steps += 1
             
             if self._is_gs(chosen):
-                penalty_or_bonus = self._penalty_util_near_90_or_bonus_under_50(chosen, req)
-                emer_bonus = self._emergency_bonus(chosen, req) 
+                check_ok = self.commit_resources_for_path(req)
+                if not check_ok:
+                    # Kh đủ tài nguyên -> phạt + kết thúc
+                    reward -= 2.0 * self.BASE_REWARD
+                    done = True
+                else:
+                    # Lấy bản ghi GS để suy ra tỉ lệ (dựa trên cpu/power đã cấp)
+                    gs_items = [t for t in self.alloc_ledger.get(req.request_id, []) if t[0] == "gs"]
+                    if gs_items:
+                        #số lượng đã cấp thực tế ở GS
+                        _, gs_node, cpu_used, power_used = gs_items[-1]
+                        
+                        f_cpu = cpu_used  / max(1e-9, req.cpu_required)
+                        f_pow = power_used/ max(1e-9, req.power_required)
+                        
+                        f = min(f_cpu, f_pow)
+                        
+                        if f < 0.5:
+                            reward -= 2.0 * self.BASE_REWARD * (1.0 - f)
+                        elif f < 1.0:
+                            reward -= 0.5 * self.BASE_REWARD * (1.0 - f)
 
-                reward += self._calculate_reward(chosen, req, 0, 0)
-                done = True
-                
-                #thêm request vào connections
-                self.connections.append(req)
+                    done = True
+                    self.connections.append(req)
 
-            reward = self._calculate_reward(chosen, req, penalty_or_bonus, emer_bonus)
 
-            # Kiểm tra QoS và kết thúc (.)
+            #Thưởng hoặc phạt theo quy tắc
+            penalty_or_bonus = self._penalty_util_near_90_or_bonus_under_50(chosen, req)
+            emer_bonus = self._emergency_bonus(chosen, req) 
+
+            reward += self._calculate_reward(obs, penalty_or_bonus, emer_bonus)
+
+            # Kiểm tra QoS (rel + lat) và kết thúc (.)
             if (obs[19] >= 0.5 and obs[19] <= 1.0 and obs[21] >= 0.5 and obs[21] <= 1.0):
                 reward += self.BASE_REWARD * (2.0 - obs[19] - obs[21])  # Thưởng nếu đạt QoS
             
@@ -821,11 +991,11 @@ class SagsEnv(gym.Env):
 
             if done:
                 #Giải phóng tài nguyên
-                for conn in self.connections:
-                    for node_id in conn.path:
+                if req not in self.connections:
+                    for node_id in req.path:
                         node = self.network.get_node(node_id)
                         if node:
-                            self.E_release_resources(node, conn)
+                            self.E_release_resources(node, req)
                 
                 self._clear_episode()
                 
@@ -847,16 +1017,17 @@ class SagsEnv(gym.Env):
         try:
             if self.current_request and self.current_request.path:
                 # Release allocated resources
-                for node_id in self.current_request.path:
-                    node = self.network.get_node(node_id)
-                    if node:
-                        self.E_release_resources(node, self.current_request)
+                if self.current_request not in self.connections:
+                    for node_id in self.current_request.path:
+                        node = self.network.get_node(node_id)
+                        if node:
+                            self.E_release_resources(node, self.current_request)
                         
             # Reset state
             self.current_request = None
             self.current_node = None
             self.node_passed_ids.clear()
-            self.neighbor_ids = [None] * 10
+            self.neighbor_ids = []
             self.steps = 0
             
         except Exception as e:
