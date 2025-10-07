@@ -121,5 +121,47 @@ class node():
         raise NotImplementedError("This method should be implemented in subclasses")
 
 
+    #giải phóng tài nguyên đã cấp phát cho request
+    def release_resource(self, req: request):
+        # --- Find the connection ---
+        conn = next((c for c in self.connections if c["request_id"] == req.request_id), None)
+        if not conn:
+            return  # No such connection
 
+        # --- Release resources ---
+        self.free_resources["uplink"] += conn["uplink"]
+        self.free_resources["downlink"] += conn["downlink"]
+        self.free_resources["cpu"] += conn["cpu"]
+        self.free_resources["power"] += conn["power"]
+
+        # --- Remove connection record ---
+        self.connections.remove(conn)
+        req.uplink_allocated = 0
+        req.downlink_allocated = 0
+        req.cpu_allocated = 0
+        req.power_allocated = 0
+        req.path = []  # Clear the path since resources are released
+        
+        return 
     
+    #kiểm tra node là GS
+    def is_GS(self):
+        return self.typename == "ground_station"
+    
+    #Lấy resources còn trống
+    def get_free_resources(self):
+        return (self.free_resources.get("uplink", 0),
+                self.free_resources.get("downlink", 0),
+                self.free_resources.get("cpu", 0),
+                self.free_resources.get("power", 0))
+    
+    #Lấy tổng resources
+    def get_total_resources(self):
+        return (self.resources.get("uplink", 0),
+                self.resources.get("downlink", 0),
+                self.resources.get("cpu", 0),
+                self.resources.get("power", 0))
+        
+    #Add connection (dùng trong mô phỏng)
+    def add_connection(self, conn_info):
+        self.connections.append(conn_info)

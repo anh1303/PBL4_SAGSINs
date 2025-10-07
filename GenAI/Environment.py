@@ -49,7 +49,8 @@ PROC_DELAY_BASE_MS = {
     "GEO": 10,           # GEO ground processing often higher ~10 ms
     "seastation": 6,     # ship/sea gateways ~6 ms
     "uav": 6,            # UAV processing ~6 ms
-    "groundstation": 10  # GS fast-path ~10 ms (but can be reduced for emergency)
+    "groundstation": 10,  # GS fast-path ~10 ms (but can be reduced for emergency)
+    "user": 6
 }
 
 
@@ -149,6 +150,8 @@ PRIO_CAP = 10.0
 
 
 
+
+
 class SagsEnv(gym.Env):
     def __init__(self):
         super().__init__()
@@ -213,9 +216,9 @@ class SagsEnv(gym.Env):
         self.neighbor_ids = [None]*10 #Store the id of 10 nearest not passed nodes
         self.current_node = None #Store the current node
         self.node_passed_ids = set() #Store the id of nodes passed to quickly check if a node has been passed
-
+    
+    #Hard reset the environment, re-generate the network and groundspace
     def reset(self, seed=None, options=None):
-        #Hard reset the environment, re-generate the network and groundspace
         super().reset(seed=seed)
         
         # Reset environment-level variables
@@ -240,12 +243,13 @@ class SagsEnv(gym.Env):
         #current node initally is none since we start from user
         self.current_node = None
 
+
         # Return normalized initial observation
         obs = self._get_obs()
         return obs
     
+    #Soft reset the environment, keep the network and groundspace
     def soft_reset(self, seed=None, options=None):
-        #Soft reset the environment, keep the network and groundspace
         super().reset(seed=seed)
         
         # Reset environment-level variables
@@ -261,6 +265,7 @@ class SagsEnv(gym.Env):
         # Extract node info
         self.nodes_passed.clear()
         self.node_passed_ids.clear()
+        
 
         # Generate first request
         self._new_request()
@@ -282,7 +287,7 @@ class SagsEnv(gym.Env):
         demand_timeout = random.randint(10000, 45000)  # episode
         priority = random.randint(*QoSProfiles_service["priority"])
         new_request = request(
-            request_id=self.count,
+            request_id=self.connections.__len__() + 1,
             type=service_type,
             source_location=client_location,
             uplink_required=uplink_required,
@@ -296,14 +301,13 @@ class SagsEnv(gym.Env):
             demand_timeout=demand_timeout
         )
         self.current_request = new_request
-        
 
 
     # Mã hóa trạng thái môi trường cho Agent học
     def _get_obs(self):
         """Return request-local state vector"""
         Maximum_resource_usage = 0.9 #Maximum resource usage percentage of a node, to avoid overloading
-        if self.current_request.type == ServiceType.Emergency:
+        if self.current_request.type == ServiceType.EMERGENCY:
             Maximum_resource_usage = 0.95
         obs = np.zeros(self.obs_dim, dtype=np.float32)
         service_index = self.current_request.type.value - 1
@@ -311,10 +315,10 @@ class SagsEnv(gym.Env):
         obs[8] = len(self.nodes_passed) / 10.0  # Current hop / 10
         obs[9] = min(self.current_request.uplink_required / 20.0, 1.0)  # Uplink required / max uplink
         obs[10] = min((self.current_request.uplink_allocated / self.current_request.uplink_required
-                   if self.current_request.uplink_required > 0 else 0.0), 1.0)  # Uplink allocated / uplink required
+                if self.current_request.uplink_required > 0 else 0.0), 1.0)  # Uplink allocated / uplink required
         obs[11] = min(self.current_request.downlink_required / 100.0, 1.0)  # Downlink required / max downlink
         obs[12] = min((self.current_request.downlink_allocated / self.current_request.downlink_required
-                   if self.current_request.downlink_required > 0 else 0.0), 1.0)  # Downlink allocated / downlink required
+                if self.current_request.downlink_required > 0 else 0.0), 1.0)  # Downlink allocated / downlink required
         lat_rad = math.radians(self.current_request.source_location["lat"])
         lon_rad = math.radians(self.current_request.source_location["lon"])
         obs[13] = (math.sin(lat_rad) + 1) / 2.0  # Normalized sin(lat)
@@ -324,10 +328,12 @@ class SagsEnv(gym.Env):
         obs[17] = min(self.current_request.source_location["alt"] / 10000000.0, 1.0)  # Normalized altitude
         obs[18] = min(self.current_request.reliability_required / 1.0, 1.0)  # Reliability required / max reliability
         obs[19] = min((self.current_request.reliability_actual / self.current_request.reliability_required
-                   if self.current_request.reliability_required > 0 else 0.0), 1.0)  # Current reliability / reliability required
+                if self.current_request.reliability_required > 0 else 0.0), 1.0)  # Current reliability / reliability required
         obs[20] = min(self.current_request.latency_required / 500.0, 1.0)  # Required latency / max latency
         obs[21] = min((self.current_request.latency_required / self.current_request.latency_actual
-                   if self.current_request.latency_required > 0 else 0.0), 1.0)  # Latency required / latency currently
+                if self.current_request.latency_required > 0 else 0.0), 1.0)  # Latency required / latency currently
+        #Lưu ý: Up/down + relibiliaty Càng cao càng tốt nhưng latency thì ngược lại
+        # số hop càng ít càng tốt
         obs[22] = min(self.current_request.priority / 10.0, 1.0)  # Priority / max priority
         obs[23] = min(self.current_request.cpu_required / 50.0, 1.0)  # CPU required / max cpu
         obs[24] = min(self.current_request.power_required / 100.0, 1.0)  # Power required / max power
@@ -352,7 +358,7 @@ class SagsEnv(gym.Env):
         )
         obs[26] = min(users_in_range_count / 10000.0, 1.0)  # Number of users in range of 2500km / 10000
         obs[27] = min(self.current_request.real_timeout / self.current_request.demand_timeout
-                   if self.current_request.demand_timeout > 0 else 0.0, 1.0)  # Timeout remaining / estimated timeout
+                if self.current_request.demand_timeout > 0 else 0.0, 1.0)  # Timeout remaining / estimated timeout
         for i in range(10):
             if i < len(neighbors):
                 self.neighbor_ids[i] = neighbors[i].id
@@ -380,20 +386,20 @@ class SagsEnv(gym.Env):
                 obs[30 + i * 12] = min(link_reliab / 1.0, 1.0)  # Reliability to node / max reliability
                 uplink_available = max(node.resources["uplink"]*Maximum_resource_usage - node.resources_used["uplink"], 0)
                 obs[31 + i * 12] = min(uplink_available / self.current_request.uplink_allocated
-                               if self.current_request.uplink_allocated > 0 else 1.0, 1.0)  # Uplink available / current uplink
+                            if self.current_request.uplink_allocated > 0 else 1.0, 1.0)  # Uplink available / current uplink
                 downlink_available = max(node.resources["downlink"]*Maximum_resource_usage - node.resources_used["downlink"], 0)
                 obs[32 + i * 12] = min(downlink_available / self.current_request.downlink_allocated
-                               if self.current_request.downlink_allocated > 0 else 1.0, 1.0)  # Downlink available / current downlink
+                            if self.current_request.downlink_allocated > 0 else 1.0, 1.0)  # Downlink available / current downlink
                 if node.typename != "groundstation":
                     obs[33 + i * 12] = 1.0 # CPU available / required cpu always 1 for relay nodes
                     obs[34 + i * 12] = 1.0 # Power available / required power always 1 for relay nodes
                 else:
                     cpu_available = max(node.resources["cpu"]*Maximum_resource_usage - node.resources_used["cpu"], 0)
                     obs[33 + i * 12] = min(cpu_available / self.current_request.cpu_required
-                                   if self.current_request.cpu_required > 0 else 1.0, 1.0)  # CPU available / required cpu
+                                if self.current_request.cpu_required > 0 else 1.0, 1.0)  # CPU available / required cpu
                     power_available = max(node.resources["power"]*Maximum_resource_usage - node.resources_used["power"], 0)
                     obs[34 + i * 12] = min(power_available / self.current_request.power_required
-                                   if self.current_request.power_required > 0 else 1.0, 1.0)  # Power available / required power
+                                if self.current_request.power_required > 0 else 1.0, 1.0)  # Power available / required power
                 obs[35 + i * 12] = 1.0 if node.typename == "groundstation" else 0.0  # GS or not
                 estimate_timeout = max_timeout = self.current_request.real_timeout
                 if self.current_node:
@@ -407,7 +413,7 @@ class SagsEnv(gym.Env):
                         if current_sat:
                             estimate_timeout = current_sat.estimate_visible_time_gs(node, max_time=max_timeout)
                 obs[36 + i * 12] = min(estimate_timeout / self.current_request.real_timeout
-                               if self.current_request.real_timeout > 0 else 1.0, 1.0)  # Timeout / user estimate timeout
+                            if self.current_request.real_timeout > 0 else 1.0, 1.0)  # Timeout / user estimate timeout
                 users_in_range_count = self.groundspace.nearby_count(
                     node.position["lat"],
                     node.position["lon"],
@@ -426,19 +432,19 @@ class SagsEnv(gym.Env):
                     #Rate by uplink, downlink, cpu, power compared to the current allocated and required
                     gs_uplink_available = max(gs.resources["uplink"]*Maximum_resource_usage - gs.resources_used["uplink"], 0)
                     rate_uplink = gs_uplink_available / (self.current_request.uplink_allocated
-                                           if self.current_request.uplink_allocated > 0 else self.current_request.uplink_required)
+                                        if self.current_request.uplink_allocated > 0 else self.current_request.uplink_required)
                     initial_mark += int(rate_uplink * 3)  # Up to 3
                     gs_downlink_available = max(gs.resources["downlink"]*Maximum_resource_usage - gs.resources_used["downlink"], 0)
                     rate_downlink = gs_downlink_available / (self.current_request.downlink_allocated
-                                             if self.current_request.downlink_allocated > 0 else self.current_request.downlink_required)
+                                        if self.current_request.downlink_allocated > 0 else self.current_request.downlink_required)
                     initial_mark += int(rate_downlink * 3)  # Up to 3
                     gs_cpu_available = max(gs.resources["cpu"]*Maximum_resource_usage - gs.resources_used["cpu"], 0)
                     rate_cpu = gs_cpu_available / (self.current_request.cpu_required
-                                       if self.current_request.cpu_required > 0 else 1)
+                                        if self.current_request.cpu_required > 0 else 1)
                     initial_mark += int(rate_cpu * 2)  # Up to 2
                     gs_power_available = max(gs.resources["power"]*Maximum_resource_usage - gs.resources_used["power"], 0)
                     rate_power = gs_power_available / (self.current_request.power_required
-                                            if self.current_request.power_required > 0 else 1)
+                                        if self.current_request.power_required > 0 else 1)
                     initial_mark += int(rate_power * 2)  # Up to 2
                     obs[39 + i * 12] = min(initial_mark / 10.0, 1.0)  # Remark of nearest GS
                 else:
@@ -449,231 +455,10 @@ class SagsEnv(gym.Env):
                 obs[28 + i * 12: 40 + i * 12] = 0.0
         return obs
 
-    
-    """Trả về List Neighbor
-        Mỗi neighbor có 12 trường: [dist_norm, lat_norm, rel_norm,
-                                ul_avail_over_need, dl_avail_over_need, cpu_avail_over_need, pwr_avail_over_need,
-                                is_gs, timeout_ratio, users_nearby_norm, dist_to_nearest_gs_norm, mark_nearest_gs]
-                                """
-    # def _neighbors_block(self, cur_lat, cur_lon, cur_alt, req):
-    #     lat = cur_lat
-    #     lon = cur_lon
-    #     alt = cur_alt
-
-    #     neighs = self._pick_top10_neighbors(lat, lon, alt, support5G=True)
-    #     num_neighbors_normalize = self._safe_ratio(len(neighs), 10.0)
-        
-    #     block = []
-        
-    #     for n in neighs:
-    #         src_type = "groundstation" if self.current_node is None else str(getattr(self.current_node, 'typename', 'groundstation')).lower()
-    #         node_type = str(getattr(n, 'typename', "")).lower()
-            
-    #         #distance từ user-> mỗi neighbors
-    #         dis_m = n.calculate_distance(lat, lon, alt, mode="3d")
-    #         dis_normalize = self._normalize(dis_m, 10_000_000.0)
-            
-    #         #độ trễ và reliability 1 hop (user ground -> neighbors type)
-    #         lat_ms = calc_link_delay_ms(dis_m, src_type, node_type, req.type)
-    #         lat_normalize = self._normalize(lat_ms, LAT_CAP)
-            
-    #         rel_ms = link_reliability(src_type, node_type, dis_m)
-    #         rel_normalize = float(max(0.0, min(rel_ms, 1.0)))
-            
-    #         # Khả dụng tài nguyên so với nhu cầu: >=1 -> đủ (clip về 1)
-    #         upLink_free, downLink_free, cpu_free, power_free = self._free_resource(n,req)
-    #         upLink_ratio = self._safe_ratio(upLink_free, req.uplink_required)
-    #         downLink_ratio = self._safe_ratio(downLink_free, req.downlink_required)
-    #         cpu_ratio = self._safe_ratio(cpu_free, req.cpu_required)
-    #         power_ratio = self._safe_ratio(power_free, req.power_required)
-            
-    #         #check GS
-    #         is_gs = 1.0 if self._is_gs(n) else 0.0
-            
-    #         #timeout của request
-    #         timeout_est = max(1.0, float(req.demand_timeout))
-    #         timeout_left = 1.0 #các neighbor không giảm TO
-            
-    #         #User trong 2500km: chưa có -> 0
-    #         users_nearby_norm = 0.0
-            
-    #         #Distance từ node này đến GS gần nhất
-    #         dis_gs_nearest = self.network.distance_to_nearest_gs(n.position["lat"], n.position["lon"], n.position.get("alt", 0.0))
-    #         dis_gs_nearest_norm = self._normalize(0.0 if dis_gs_nearest is None else dis_gs_nearest, 10_000_000.0)
-            
-    #         #remark GS nearest
-    #         remark_gs_nearest = self._nearest_gs_remark_neighbors(n, dis_gs_nearest)
-            
-    #         block.extend([
-    #             dis_normalize, lat_normalize, rel_normalize,
-    #             upLink_ratio, downLink_ratio, cpu_ratio, power_ratio,
-    #             is_gs, timeout_left, users_nearby_norm, dis_gs_nearest_norm, remark_gs_nearest
-    #         ])
-        
-    #     #Tự thêm nếu n<10
-    #     if len(neighs) < 10:
-    #         pad_count = 10 - len(neighs)
-    #         for _ in range(pad_count):
-    #             # [dist, lat, rel, ul, dl, cpu, pwr, is_gs, timeout, users, dist_to_gs, remark]
-    #             block.extend([1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0])
-        
-    #     return block, num_neighbors_normalize
 
 
-    #Phần cốt lõi của vector quan sát(OBS) chỉ phụ thuộc vào yêu cầu dịch vụ hiện tại (req)
-    #Nó phản ánh trạng thái thực tế ở lần quan sát tiếp theo -> agent xem đã đáp ứng % để điều chỉnh
-    # def _base_block(self, req):
-    #     """
-    #     Phần BASE của vector quan sát(không tính top-10 láng giềng)
-    #     Gồm:
-    #     - Vector_service: toàn bộ 0, 1 với dịch vụ tương ứng (8)
-    #     - current_hop_norm
-    #     - UL_req_norm, UL_alloc_over_req
-    #     - DL_req_norm, DL_alloc_over_req
-    #     - location (sin(lat), cos(lat), sin(lon), cos(lon), alt_norm)
-    #     - reliability_req_norm, reliability_actual_over_req
-    #     - latency_req_norm, latency_actual_over_req
-    #     - priority_norm
-    #     - cpu_req_norm, power_req_norm
-    #     - num_neighbors_norm (sẽ điền sau)
-    #     - users_in_2500km_norm (chưa có -> 0)
-    #     - timeout_remaining_over_est
-    #     """
-    #     vector_sv = self._vector_service(req.type)
-        
-    #     #số hop đã đi
-    #     cur_hop = len(req.path)
-    #     cur_hop_normalize = self._normalize(cur_hop, 10.0)
-        
-    #     #up/down Link
-    #     upLink_req_normalize = self._normalize(req.uplink_required, UL_CAP)
-    #     upLink_alloc_over_req = self._safe_ratio(getattr(req, "uplink_allocated", 0.0), max(req.uplink_required, 1e-9))
-    #     downLink_req_normalize = self._normalize(req.downlink_required, DL_CAP)
-    #     downLink_alloc_over_req = self._safe_ratio(getattr(req, "downlink_allocated", 0.0), max(req.downlink_required, 1e-9))
-        
-        
-    #     #location
-    #     lat = math.radians(req.source_location["lat"])
-    #     lon = math.radians(req.source_location["lon"])
-    #     alt = req.source_location.get("alt", 0.0)
-    #     loc_vec = [
-    #         math.sin(lat), math.cos(lat),
-    #         math.sin(lon), math.cos(lon),
-    #         self._normalize(alt, 10_000_000.0)
-    #         ]
-        
-    #     #reliablity / latency
-    #     rel_req = float(req.reliability_required)
-    #     rel_req_normalize = float(max(0.0, min(rel_req, 1.0)))
-    #     rel_actual = float(getattr(req, "reliability_actual", 0.0))
-    #     rel_actual_over_req = self._safe_ratio(rel_actual, max(rel_req, 1e-9))
-        
-    #     lat_req_normalize = self._normalize(req.latency_required, LAT_CAP)
-    #     lat_actual = float(getattr(req, "latency_actual", 0.0))
-    #     lat_actual_over_req = self._safe_ratio(lat_actual, max(req.latency_required, 1e-9))
-        
-    #     #priority
-    #     priority_normalize = self._safe_ratio(float(req.priority), PRIO_CAP)
-        
-    #     #CPU / POWER
-    #     cpu_req_normalize = self._normalize(req.cpu_required, CPU_CAP)
-    #     power_req_normalize = self._normalize(req.power_required, PWR_CAP)
-        
-    #     #user trong 2500km -> 0 (chưa có)
-    #     users_in_2500km_norm = 0.0
-        
-    #     #timeout
-    #     est_timeout = max(1.0, float(req.demand_timeout))
-    #     remain_timeout = max(0.0, est_timeout - float(getattr(req, "real_timeout", 0.0)))
-    #     ratio_timeout = self._safe_ratio(remain_timeout, est_timeout)
-        
-    #     base = np.concatenate([
-    #         vector_sv,
-    #         np.array([
-    #             cur_hop_normalize,
-    #             upLink_req_normalize, upLink_alloc_over_req,
-    #             downLink_req_normalize, downLink_alloc_over_req,
-    #             ], dtype=np.float32),
-    #         np.array(loc_vec, dtype = np.float32),
-    #         np.array([
-    #             rel_req_normalize, rel_actual_over_req,
-    #             lat_req_normalize, lat_actual_over_req,
-    #             priority_normalize,
-    #             cpu_req_normalize, power_req_normalize
-    #             ], dtype = np.float32),
-    #         np.array([
-    #             users_in_2500km_norm,
-    #             #num_neighbors_normalize, -> thêm sau 
-    #             ratio_timeout], dtype=np.float32),
-    #     ])
-        
-    #     return base
-    
-    #Tính chiều dài observation động theo schema
-    #Nếu thay đổi Schema thì hàm tự tính lại
-    # def _calculate_obs(self, req):
-    #     base = self._base_block(req)
-    #     if self.current_node is None:
-    #         cur_lat = req.source_location["lat"]
-    #         cur_lon = req.source_location["lon"]
-    #         cur_alt = req.source_location.get("alt", 0.0)
-    #     else:
-    #         cur_lat = self.current_node.position["lat"]
-    #         cur_lon = self.current_node.position["lon"]
-    #         cur_alt = self.current_node.position.get("alt", 0.0)
-    #     neigh_block, num_neighbors_normalize = self._neighbors_block(cur_lat, cur_lon, cur_alt, req)
-        
-    #     #chèn num_neighbors_normalize
-    #     obs = np.concatenate([
-    #         base,
-    #         np.array([num_neighbors_normalize], dtype=np.float32),
-    #         np.array(neigh_block, dtype=np.float32)
-    #         ])
-        
-    #     return obs.astype(np.float32)
-    
-    # Tính chiều dài vector động (để set observation_space an toàn)
-    # def _calc_obs_len(self):
-    #     # base: vector_service(8) + 5 (hop+UL/DL) + 5 loc + 7 (rel/lat/pri/cpu/pwr) + 2 (users, timeout)
-    #     base_len = 8 + 5 + 5 + 7 + 2
-    #     # +1 cho num_neighbors_norm
-    #     PER_NEI = 12  # [dist, lat, rel, ul, dl, cpu, pwr, is_gs, timeout, users, dist_to_gs, remark]
-    #     return base_len + 1 + (10 * PER_NEI)
-    
-    RESERVE_RATIO = 0.10 # dành cho emergency 10%
-    INVALID_ACTION_PENALTY = 0.1
-    DONE_ON_MAX_STEPS = True
-    INCLUDE_REMARK = False # True nếu đã remark neighbor nearest
-    HOP_PENALTY = 0.01  # phạt mỗi bước -> thúc đẩy Agent đi ngắn hơn
-    BASE_REWARD = 1.0
 
-    
-    # def _hop_metrics_from_source(self, destination_node, req):
-    #     #metrics từ user(ground) -> destination node
-    #     lat = req.source_location["lat"]
-    #     lon = req.source_location["lon"]
-    #     alt = req.source_location.get("alt", 0.0)
-        
-    #     distence_m = destination_node.calculate_distance(lat, lon, alt, mode="3d")
-    #     destination_type = str(getattr(destination_node, 'typename', "")).lower()
-        
-    #     hot_lat_ms = calc_link_delay_ms(distence_m, "groundstation", destination_type, req.type)
-    #     hot_rel = link_reliability("groundstation", destination_type, distence_m)
-        
-    #     return distence_m, hot_lat_ms, hot_rel
-    
-    # def _hop_metrics_from_node(self, src_node, dst_node, req):
-    #     #metrics từ src node -> dst node
-    #     s = src_node.position
-    #     distence_m = dst_node.calculate_distance(s["lat"], s["lon"], s.get("alt", 0.0), mode="3d")
-        
-    #     src_type = str(getattr(src_node, 'typename', "")).lower()
-    #     dst_type = str(getattr(dst_node, 'typename', "")).lower()
 
-    #     hop_lat_ms = calc_link_delay_ms(distence_m, src_type, dst_type, req.type)
-    #     hop_rel = link_reliability(src_type, dst_type, distence_m)
-        
-    #     return distence_m, hop_lat_ms, hop_rel
 
     #Cộng dồn tích lũy latency + reliably vào rq
     def _accumulate_link(self, hop_lat_ms, hop_rel, req):
@@ -687,123 +472,61 @@ class SagsEnv(gym.Env):
         return str(getattr(node_obj, 'typename', "")).lower() == "groundstation"
     
     
-    # def _get_totals(self, node_obj):
-    #     #tổng công suất src gốc
-    #     total_uplink  = float(node_obj.resources.get("uplink",   0.0))
-    #     total_downlink= float(node_obj.resources.get("downlink", 0.0))
-    #     total_cpu     = float(node_obj.resources.get("cpu",      0.0))
-    #     total_power   = float(node_obj.resources.get("power",    0.0))
         
-    #     return total_uplink, total_downlink, total_cpu, total_power
-        
-    # def _get_free(self, node_obj):
-    #     uplink_free   = float(node_obj.free_resources.get("uplink",   0.0))
-    #     downlink_free = float(node_obj.free_resources.get("downlink", 0.0))
-    #     cpu_free      = float(node_obj.free_resources.get("cpu",      0.0))
-    #     power_free    = float(node_obj.free_resources.get("power",    0.0))
-        
-    #     return uplink_free, downlink_free, cpu_free, power_free
-    
-    # #Theo quy luật
-    # def _respect_reserve(self, node_obj, req_obj) -> bool:
-    #     #moniter metrics
-    #     total_resources = self._get_totals(node_obj)
-    #     free_resources = self._get_free(node_obj)
-    #     utilization = {
-    #         k: 1 - (free_resources[k] / total_resources[k]) 
-    #         for k in total_resources
-    #     }
-        
-    #     # Track utilization + giới hạn append
-        
-    #     self.metrics['resource_utilization'].append(utilization)
-    #     if len(self.metrics['resource_utilization']) > 1000:
-    #         self.metrics['resource_utilization'] = self.metrics['resource_utilization'][-100:]
-        
-    #     #GS để lại 10% cho EMER và EMER có thể vượt quá 10%, node khác free là đủ
-    #     _, _, cpu_free, power_free = self._get_free(node_obj)
-    #     _, _, cpu_total, power_total = self._get_totals(node_obj)
-
-    #     cpu_need = req_obj.cpu_required
-    #     power_need = req_obj.power_required
-        
-    #     #Các node khác thì cho phép
-    #     if not self._is_gs(node_obj):
-    #         return (cpu_free >= cpu_need and power_free >= power_need)
-        
-    #     #Dịch vụ EMER
-    #     if req_obj.type.name == "EMERGENCY":
-    #         return (cpu_free >= cpu_need and power_free >= power_need)
-        
-    #     #Dịch vụ thường -> cho sự dụng < 90%
-    #     resver_cpu = cpu_total * self.RESERVE_RATIO
-    #     resver_power = power_total * self.RESERVE_RATIO
-        
-    #     cpu_left = cpu_free - cpu_need
-    #     power_left = power_free - power_need
-        
-    #     return (cpu_left >= resver_cpu and power_left >= resver_power)
-        
-    #Cơ chế phạt khi gần đạt 90%
-    #Sua lai hàm này để phạt nặng hơn khi vượt 90% hoac cang gan 90%,
-    #Co the thuong neu % thap
-    def _penalty_util_near_90(self, node_obj, req_obj) -> float:
-        maximum_usage =0.9
+    #Cơ chế phạt khi gần đạt 90% và thưởng dưới 50
+    def _penalty_util_near_90_or_bonus_under_50(self, node_obj, req_obj) -> float:
+        maximum_usage = 0.9
         if req_obj.type.name == "EMERGENCY":
             maximum_usage = 0.95
         
-        total_upLink, total_downLink, total_cpu, total_power = self._get_totals(node_obj)
-        free_upLink, free_downLink, free_cpu, free_power = self._get_free(node_obj)
+        total_upLink, total_downLink, total_cpu, total_power = node_obj.get_total_resources()
+        self._get_totals(node_obj)
+        free_upLink, free_downLink, free_cpu, free_power = node_obj.get_free_resources()
         cpu_need = req_obj.cpu_required
         power_need = req_obj.power_required
         
-        #tỉ lệ dùng sau khi cấp(0..1)
+        #tỉ lệ dùng sau khi cấp đã normalize
         used_cpu_after = (total_cpu - (free_cpu - cpu_need)) / (total_cpu + 1e-6)
         used_power_after = (total_power - (free_power - power_need)) / (total_power + 1e-6)
         
-        # <= 90% -> =0
-        over_cpu = max(0.0, used_cpu_after - 0.90)
-        over_power = max(0.0, used_power_after - 0.90)
+        # Thưởng nhẹ nếu dưới 50%
+        if used_cpu_after < 0.50 or used_power_after < 0.50:
+            return 0.5
+        
+        #Phạt nặng nếu vượt 90%, phạt nhẹ nếu gần 90%
+        over_cpu = max(0.0, used_cpu_after - maximum_usage)
+        over_power = max(0.0, used_power_after - maximum_usage)
         
         #hệ số penalty
         penalty = 20.0
-        return penalty * (over_cpu ** 2 + over_power ** 2)
+        return (- penalty * (over_cpu ** 2 + over_power ** 2))
     
-    #Khong can cai nay nhung ma GS phai thuong lon hon
+    #thưởng nhẹ ở EMER và thưởng lớn với GS
     def _emergency_bonus(self, node_obj, req_obj)->float:
         #thưởng nhẹ ở GS + EMER
-        if not self._is_gs(node_obj) or req_obj.type.name != "EMERGENCY":
-            return 0.0
-        return 0.5
-    
-    # def _pick_top10_neighbors(self, lat, lon, alt = 0.0, support5G = True):
-    #     # All nodes visited
-    #     if len(self.visited_ids) >= self.num_nodes:
-    #         return []
-        
-    #     candidates = self.network.find_connectable_nodes_for_location(lat, lon, alt, support5G = support5G)
-
-    #     #loại các node đã qua
-    #     filtered = [n for n in candidates if getattr(n, 'id', getattr(n, 'name', None)) not in self.visited_ids]
-
-    #     #Sort theo Dis
-    #     filtered.sort(key=lambda n: n.calculate_distance(lat, lon, alt, mode="3d"))
-
-    #     #Lưu id
-    #     self.neighbor_ids = [getattr(n, 'id', getattr(n, 'name', 'node')) for n in filtered[:10]] + [None] * (10 - len(filtered[:10]))
-    #     return filtered[:10]
+        if req_obj.type.name == "EMERGENCY":
+            return 0.05
+        #thưởng lớn ở GS
+        if self._is_gs(node_obj):
+            return 5.0
+        return 0.0
     
     
-    #lấy free Công suất của node với policy 10%
+    
+    #lấy free Công suất của node với policy
     def _free_resource(self, node_obj, req_obj)-> tuple:
-        upLink_free, downLink_free, cpu_free, power_free = self._get_free(node_obj)
+        maximum_usage = 0.9
+        if req_obj.type.name == "EMERGENCY":
+            maximum_usage = 0.95
+        
+        upLink_free, downLink_free, cpu_free, power_free = node_obj.get_free_resources()
         
         #Dịch vụ thường
         if self._is_gs(node_obj) and req_obj.type.name != "EMERGENCY":
-            _, _, cpu_total, power_total = self._get_totals(node_obj)
+            _, _, cpu_total, power_total = node_obj.get_total_resources()
             
-            reserve_cpu   = cpu_total  * self.RESERVE_RATIO
-            reserve_power = power_total* self.RESERVE_RATIO
+            reserve_cpu   = cpu_total  * maximum_usage
+            reserve_power = power_total * maximum_usage
 
             cpu_free   = max(0.0, cpu_free   - reserve_cpu)
             power_free = max(0.0, power_free - reserve_power)
@@ -835,153 +558,12 @@ class SagsEnv(gym.Env):
     
     
     
+    INVALID_ACTION_PENALTY = 0.1
+    MAX_STEP = 10
+    HOP_PENALTY = 0.02  # phạt mỗi bước
+    BASE_REWARD = 1.0
     
-    #Mô phỏng bước đi của Agent
-    def step(self, action):
-        try: 
-            done = False
-            reward = 0.0
-            
-            req = self.current_request
-            obs = self._get_obs()
-            
-            #K có request
-            if req is None:
-                self._new_request()
-                self.logger.warning("No current request - creating new one")
-                reward -= self.INVALID_ACTION_PENALTY
-                return self._get_obs(), reward, done, {}
-                
-
-            # #Lấy Neighbors
-            # if self.current_node is None:
-            #     lat = req.source_location["lat"]
-            #     lon = req.source_location["lon"]
-            #     alt = req.source_location.get("alt", 0.0)
-            # else:
-            #     lat = self.current_node.position["lat"]
-            #     lon = self.current_node.position["lon"]
-            #     alt = self.current_node.position.get("alt", 0.0)
-
-            # neighbors = self._pick_top10_neighbors(lat, lon, alt, support5G=True)
-            neighbors = [None]*10
-            for i in range(10):
-                neighbor_id = self.neighbor_ids[i]
-                if neighbor_id is not None:
-                    node = self.network.nodes[neighbor_id]
-                    neighbors[i] = node
-                else:
-                    break
-
-            #K có neighbors
-            avail = len(neighbors)
-            if avail == 0:
-                reward -= self.INVALID_ACTION_PENALTY
-                return self.soft_reset(), reward, True, {}
-
-            # Xử lý action
-            try:
-                a = int(action)
-            except Exception:
-                a = -1
-            if a < 0 or a >= avail:
-                #Action sai -> phạt
-                reward -= self.INVALID_ACTION_PENALTY
-                return self.soft_reset, reward, False, {}
-
-            chosen = neighbors[a]
-
-            # Tính metrics hop
-            # if self.current_node is None or not req.path:
-            #     _, hop_lat_ms, hop_rel = self._hop_metrics_from_source(chosen, req)
-            # else:
-            #     _, hop_lat_ms, hop_rel = self._hop_metrics_from_node(self.current_node, chosen, req)
-            hop_lat_norm = obs[29 + a*12]
-            hop_rel = obs[30 + a*12]
-            hop_lat_ms = hop_lat_norm * LAT_CAP
-            
-            lat_after = float(getattr(req, "latency_actual", 0.0)) + float(hop_lat_ms) #latency sau khi qua node
-            
-            #Kiểm tra latency
-            if lat_after > req.latency_required:
-                reward -= 0.5
-                #Nen tru diem theo ti le
-
-            #Kiểm tra quy luật
-            # if not self._respect_reserve(chosen, req):
-            #     reward -= self.BASE_REWARD
-            #     return self._get_obs(), reward, False, {"blocked": "reserve"}
-
-            #Tính cấp phát từng chiều
-            # up_alloc, down_alloc, cpu_alloc, pwr_alloc = self._calculate_partial_min(chosen, req)
-            uplink = obs[31+a*12]
-            downlink = obs[32+a*12]
-            cpu = obs[33+a*12]
-            power = obs[34+a*12]
-            #kiểm tra up/down link
-            if uplink < 1.0 or downlink < 1.0:
-                reward -= self.BASE_REWARD
-                #Nen tinh theo ti le dap ung
-
-            #Cập nhật req
-            self._accumulate_link(hop_lat_ms, hop_rel, req)
-
-            req.uplink_allocated *= uplink
-            req.downlink_allocated *= downlink
-            #CPU va POWER khong can cap phat voi relay node vi khong dang ke
-            #Chi cap phat cpu va power khi den GS
-            
-
-            #Cấp phát
-            #Kiem tra lai login, tru theo thuc te chu khong phai required
-            check = chosen.allocate_resource(req, allow_partial = req.allow_partial)
-            if not check:
-                reward -= self.BASE_REWARD
-
-            #Update đường đi + vị trí hiện tại
-            req.path.append(getattr(chosen, "id", getattr(chosen, "name", "node")))
-            self.nodes_passed.append(chosen)
-            #Mark node 
-            chosen_id = getattr(chosen, "id", getattr(chosen, "name", None))
-            
-            if chosen_id is not None:
-                self.node_passed_ids.add(chosen_id)
-                
-            self.current_node = chosen
-            reward -= self.HOP_PENALTY
-            
-            if self._is_gs(chosen):
-                reward = self._calculate_reward(chosen, req, 0, 0)
-                return self._get_obs(), reward, True, {}
-
-            penalty = self._penalty_util_near_90(chosen, req)
-            emer_bonus = self._emergency_bonus(chosen, req) 
-
-            reward = self._calculate_reward(chosen, req, penalty, emer_bonus)
-
-            # Kiểm tra QoS và kết thúc
-            qos_ok = (req.reliability_actual >= req.reliability_required) and (req.latency_actual <= req.latency_required)
-            if qos_ok:
-                reward += 0.3
-                done = True
-            
-            self.steps += 1
-            if self.DONE_ON_MAX_STEPS and self.steps >= self.max_steps:
-                done = True
-
-
-            return self._get_obs(), reward, done, {}
-        
-        #Chu y chi ket thuc episode khi den GS hoac het lua chon hoac cham den hop_limit
-        #Neu chua den thoi diem ket thuc episode thi chi cap nhat hop_count, current_node, path ,... va di tiep qua step tiep theo
-        #Sau khi ket thuc episode thi duyet connection de cap nhat lai resource
-        #Neu cham den GS thi them request hien tai vao connections
-
-        except Exception as e:
-            self.logger.error(f"Error in step: {e}")
-            return self._get_obs(), -self.INVALID_ACTION_PENALTY, True, {"error": str(e)}
-
-
+    
     #Tính reward
     """
         R_final = clip((R_base + R_QoS + R_resource + R_path + R_goal + B_extra) - P_hop, -1, 1)
@@ -1012,14 +594,13 @@ class SagsEnv(gym.Env):
     Phạt cho mỗi bước đi
         P_hop = 0.02 * N_steps
     """
-    def _calculate_reward(self, chosen_node, req, penalty: float, bonus: float) -> float:
+    def _calculate_reward(self, obs, penalty: float, bonus: float) -> float:
         try:
             # Base reward cho việc di chuyển thành công
-            base_reward = 0.1
             
             # QoS component (35%)
-            reliability_score = min(1.0, req.reliability_actual / req.reliability_required)
-            latency_score = max(0, 1.0 - (req.latency_actual / req.latency_required))
+            reliability_score  = obs[19]  # Current reliability / reliability required
+            latency_score      = obs[21]  # Latency required / latency currently
             qos_reward = 0.35 * (0.6 * reliability_score + 0.4 * latency_score)
             
             # Resource efficiency (25%)
@@ -1027,33 +608,239 @@ class SagsEnv(gym.Env):
             resource_reward = 0.25 * (1.0 - resource_penalty)
             
             # Path efficiency (20%)
-            path_penalty = self.steps / self.max_steps
+            path_penalty = self.steps / self.MAX_STEP
             path_reward = 0.20 * (1.0 - path_penalty)
             
             # Goal achievement (20%)
-            if self._is_gs(chosen_node):
+            if self._is_gs(self.current_node):
                 #Bonus lớn khi đến được GS
-                goal_reward = 0.20
+                goal_reward = 5.0
                 #extra bonus nếu đạt QoS
-                if (req.reliability_actual >= req.reliability_required and 
-                    req.latency_actual <= req.latency_required):
-                    goal_reward += 0.3
+                if (reliability_score >= 1.0 and latency_score >= 1.0):
+                    goal_reward += 1.0
             else:
                 goal_reward = 0
             
             # Sum
-            total = base_reward + qos_reward + resource_reward + path_reward + goal_reward + bonus
+            total = self.BASE_REWARD + qos_reward + resource_reward + path_reward + goal_reward + bonus
             
             # Penalty cho mỗi hop -> khuyến khích đường ngắn
-            hop_penalty = 0.02 * self.steps
+            hop_penalty = self.HOP_PENALTY * self.steps
             
             final_reward = total - hop_penalty
             
-            return float(np.clip(final_reward, -1.0, 1.0))
+            return final_reward
         
         except Exception as e:
             self.logger.error(f"Error calculating reward: {e}")
             return -0.5
+
+    # Extra bonus or penalty 
+        """
+            EMERGENCY = Latency -> Reliability -> UP/DOWN Link
+            CONTROL = Latency -> Reliability -> UP/DOWN Link
+            VOICE = Latency -> Reliability -> UP/DOWN Link
+            
+            VIDEO = UP/DOWN Link -> Rieliability -> Latency
+            STREAMING = UP/DOWN Link -> Rieliability -> Latency
+            DATA_TRANSFER = UP/DOWN Link -> Rieliability -> Latency
+            
+            DATA = UP/DOWN Link -> Latency -> Rieliability
+            
+            IOT = Reliability -> Latency -> UP/DOWN Link
+        """
+    def _extra_bonus_penalty(self, obs, lat, rel) -> float:
+        reward = 0.0
+        EXTRA_REWARD = 0.5
+        
+        # 1 khi tốt nhất
+        lat_ratio = min((self.current_request.latency_required / lat), 1.0)
+        rel_ratio = rel
+        upLink_ratio = obs[10]
+        downLink_ratio = obs[12]
+        
+        service = self.current_request.type
+        
+        #sum = 1.0
+        w_lat, w_rel, w_up, w_down = 0.0, 0.0, 0.0, 0.0
+        
+        #Latency -> Reliability -> Number of Hops
+        if service in (ServiceType.EMERGENCY, ServiceType.CONTROL, ServiceType.VOICE):
+            w_lat, w_rel, w_up, w_down = 0.5, 0.3, 0.1, 0.1
+            
+        elif service in (ServiceType.VIDEO, ServiceType.STREAMING, ServiceType.DATA_TRANSFER):
+            w_lat, w_rel, w_up, w_down = 0.1, 0.2, 0.4, 0.3
+            
+        elif service in ServiceType.DATA:
+            w_lat, w_rel, w_up, w_down = 0.2, 0.1, 0.35, 0.35
+        elif service in ServiceType.IOT:
+            w_lat, w_rel, w_up, w_down = 0.3, 0.4, 0.15, 0.15
+            
+        reward += EXTRA_REWARD * ( 0.5 - 
+                                    w_lat * (1 - lat_ratio) -
+                                    w_rel * (1 - rel_ratio) -
+                                    w_up * (1 - upLink_ratio) -
+                                    w_down * (1 - downLink_ratio)
+                                    )
+        
+        return reward
+    
+    
+    
+    #Mô phỏng bước đi của Agent
+    def step(self, action):
+        try: 
+            done = False
+            reward = 0.0
+            
+            req = self.current_request
+            obs = self._get_obs()
+            
+            #K có request
+            if req is None:
+                self._new_request()
+                self.logger.warning("No current request - creating new one")
+                reward -= self.INVALID_ACTION_PENALTY
+                return self._get_obs(), reward, done, {}
+                
+
+            #Lấy Neighbors
+            neighbors = []
+            for i in range(10):
+                neighbor_id = self.neighbor_ids[i]
+                if neighbor_id is not None and neighbor_id not in self.node_passed_ids:
+                    neighbors.append(self.network.get_node(neighbor_id))
+
+            #K có neighbors
+            if len(neighbors) == 0:
+                #kiểm tra GS -> Đích
+                if self.current_node and self._is_gs(self.current_node):
+                    reward += self._calculate_reward(obs, 0.0, 0.0)
+                    #cộng phần cpu và power đã cấp phát
+                    cpu_used = req.cpu_required
+                    power_used = req.power_required
+                    
+                    no
+                    
+                else:
+                    self.logger.warning("No available neighbors to step to")
+                    
+                    reward -= self.INVALID_ACTION_PENALTY
+                    done = True
+                    #Giải phóng tài nguyên
+                    for conn in self.connections:
+                        for node_id in conn.path:
+                            node = self.network.get_node(node_id)
+                            if node:
+                                self.E_release_resources(node, conn)
+                
+                self._clear_episode()
+                
+                return self.soft_reset, reward, False, {}
+            
+
+            # Xử lý action
+            try:
+                a = int(action)
+            except Exception:
+                a = -1
+                
+            if a < 0 or a >= len(neighbors):
+                #Action sai -> phạt
+                reward -= self.INVALID_ACTION_PENALTY
+                return self.soft_reset, reward, False, {}
+            
+            chosen = neighbors[a]
+
+            hop_lat_norm = obs[29 + a*12]
+            hop_rel = obs[30 + a*12]
+            hop_lat_ms = hop_lat_norm * LAT_CAP
+            
+            lat_after = float(getattr(req, "latency_actual", 0.0)) + float(hop_lat_ms) #latency sau khi qua node
+            rel_after = hop_rel #reliably sau khi qua node
+            
+            reward += self._extra_bonus_penalty(obs, lat_after, rel_after) #Thưởng/phạt thêm độ ưu tiên theo dịch vụ
+            
+            #Kiểm tra latency
+            if lat_after > req.latency_required:
+                reward -= 0.5 * (lat_after) / (req.latency_required)
+
+
+            #Tính cấp phát từng chiều
+            uplink = obs[31 + a * 12]
+            downlink = obs[32 + a * 12]
+            
+            #kiểm tra up/down link
+            if uplink < 0.5 or downlink < 0.5:
+                reward -= 2.0 * self.BASE_REWARD * (2.0 - uplink - downlink)  # phạt nặng nếu k đáp ứng 50% required
+            elif uplink < 1.0 or downlink < 1.0:
+                reward -= self.BASE_REWARD * (2.0 - uplink - downlink) * 0.5
+
+                
+                return self.soft_reset, reward, False, {}
+
+            #Cập nhật req
+            self._accumulate_link(hop_lat_ms, hop_rel, req)
+
+            req.uplink_allocated *= uplink
+            req.downlink_allocated *= downlink
+            #CPU va POWER khong can cap phat voi relay node vi khong dang ke
+            #Chi cap phat cpu va power khi den GS
+            
+
+            #Cấp phát
+            check = chosen.allocate_resource(req, allow_partial = req.allow_partial)
+            if not check:
+                reward -= self.BASE_REWARD
+
+            #Update đường đi + vị trí hiện tại
+            req.path.append(getattr(chosen, "id", getattr(chosen, "name", "node")))
+            self.nodes_passed.append(chosen)
+            self.node_passed_ids.add(getattr(chosen, "id", getattr(chosen, "name", None)))
+            self.current_node = chosen
+            self.steps += 1
+            
+            if self._is_gs(chosen):
+                penalty_or_bonus = self._penalty_util_near_90_or_bonus_under_50(chosen, req)
+                emer_bonus = self._emergency_bonus(chosen, req) 
+
+                reward += self._calculate_reward(chosen, req, 0, 0)
+                done = True
+                
+                #thêm request vào connections
+                self.connections.append(req)
+
+            reward = self._calculate_reward(chosen, req, penalty_or_bonus, emer_bonus)
+
+            # Kiểm tra QoS và kết thúc (.)
+            if (obs[19] >= 0.5 and obs[19] <= 1.0 and obs[21] >= 0.5 and obs[21] <= 1.0):
+                reward += self.BASE_REWARD * (2.0 - obs[19] - obs[21])  # Thưởng nếu đạt QoS
+            
+            if self.steps >= self.MAX_STEP:
+                done = True
+
+            if done:
+                #Giải phóng tài nguyên
+                for conn in self.connections:
+                    for node_id in conn.path:
+                        node = self.network.get_node(node_id)
+                        if node:
+                            self.E_release_resources(node, conn)
+                
+                self._clear_episode()
+                
+            return self._get_obs(), reward, done, {}
+        
+        #Chu y chi ket thuc episode khi den GS hoac het lua chon hoac cham den hop_limit
+        #Neu chua den thoi diem ket thuc episode thi chi cap nhat hop_count, current_node, path ,... va di tiep qua step tiep theo
+        #Sau khi ket thuc episode thi duyet connection de cap nhat lai resource
+        #Neu cham den GS thi them request hien tai vao connections
+
+        except Exception as e:
+            self.logger.error(f"Error in step: {e}")
+            return self._get_obs(), -self.INVALID_ACTION_PENALTY, True, {"error": str(e)}
+
+
     
     #Xóa episode khi kết thúc
     def _clear_episode(self):
@@ -1063,18 +850,12 @@ class SagsEnv(gym.Env):
                 for node_id in self.current_request.path:
                     node = self.network.get_node(node_id)
                     if node:
-                        self._release_resources(node, self.current_request)
+                        self.E_release_resources(node, self.current_request)
                         
-                # Update metrics
-                success = (self.current_request.reliability_actual >= self.current_request.reliability_required and 
-                            self.current_request.latency_actual <= self.current_request.latency_required)
-                self.metrics['success_rate'].append(1.0 if success else 0.0)
-                self.metrics['avg_steps_per_episode'].append(self.steps)
-                
             # Reset state
             self.current_request = None
             self.current_node = None
-            self.visited_ids.clear()
+            self.node_passed_ids.clear()
             self.neighbor_ids = [None] * 10
             self.steps = 0
             
@@ -1082,20 +863,10 @@ class SagsEnv(gym.Env):
             self.logger.error(f"Error in episode cleanup: {e}")
     
     #Phân bổ lại tài nguyên cho node
-    def _release_resources(self, node, request):
+    def E_release_resources(self, node, request):
         try:
-            if not node or not request:
-                return
-                
-            # Return allocated resources
-            node.free_resources["uplink"] += request.uplink_allocated
-            node.free_resources["downlink"] += request.downlink_allocated 
-            node.free_resources["cpu"] += request.cpu_allocated
-            node.free_resources["power"] += request.power_allocated
-            
-            # Remove connection record
-            node.connections = [c for c in node.connections if c["request_id"] != request.request_id]
-            
+            if node and request:
+                node.release_resource(request)           
         except Exception as e:
             self.logger.error(f"Error releasing resources: {e}")
     
