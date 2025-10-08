@@ -1,0 +1,32 @@
++We will calculate reward after each step by this policy:
+Max point : 100
+dead_end_reach: the AI come to a point where there is no possible action and it is not the gs -> -60
+invalid_action: the AI try to do an invalid action that is not a node -> -100
+step_limit: the AI exceed the max step allowed -> -50
+hop_penalty_pool: 5 points: hop_penalty = max(5 - hop_count, -3)
+
+effective_usage_percentage: pool = 10, if the current node mean resource usage for cpu, power, uplink, downlink is: 
+    + Consider divide the points by weight instead of getting mean: (uplink, downlink, cpu, power)*each_weight (cpu and power is gs_only)
+    +under 60%: give +10 reward
+    +more than 60%: deduct penalty
+    +formula : effective_pool * (0,5 - usage_percentage) * 2 (0% -> +10, 50% -> 0, 100% -> -10)
+QOS_pool: 55 points with weights for latency, reliability, uplink, downlink
+    +formula: weight * qos_pool * (qos_actual/qos_required)
+    +special case: for latency, use: weight * qos_pool * clip(lat_required/lat_actual,1)
+Timeout pool: 10 points:
+pool * (real_timeout/demand_timeout)
+Finish pool: 35 points:
+    +Reach GS: 20 points
+    +CPU bonus: 10 * (cpu_actual/cpu_required)
+    +Power bonus: 10 * (power_actual/power_required)
+Base reward to inspire exploration : 5 * (1 - hop_count / (max_hop))
+
+some notes:
++Reward will be calculated after each step
++Episode will end when:
+    +The AI reach the GS
+    +The AI reach a dead end (no where to go)
+    +The AI exceed the max step allowed
+    +In case the AI take an invalid action, the state will not change, the AI can try another action
++Points will be normalize to [-1,1]
++After each episode , the timeout of each request stored in position will be deducted by 1 and release resource when timeout go to 0, ensure that the environment can run endlessly

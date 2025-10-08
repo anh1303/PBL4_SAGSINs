@@ -35,8 +35,8 @@ class request:
 
         self.uplink_allocated = uplink_required
         self.downlink_allocated = downlink_required
-        self.latency_actual = None
-        self.reliability_actual = None
+        self.latency_actual = 0
+        self.reliability_actual = 1
 
         # Data info
         self.packet_size = packet_size
