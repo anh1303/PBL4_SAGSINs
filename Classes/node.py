@@ -60,6 +60,42 @@ class node():
     def can_connect(self, dev_lat, dev_lon, dev_alt=0, collection = None, is_sat = False):
         raise NotImplementedError("This method should be implemented in subclasses")
 
+    #giải phóng tài nguyên cấp phát cho node Relay (up/down)
+    def release_resource_relay(self, req: request):
+        # Release resources
+        self.free_resources["uplink"] += req.uplink_allocated
+        self.free_resources["downlink"] += req.downlink_allocated
+        
+        return 
 
-
+    #giải phóng tài nguyên đã cấp phát cho request (4 QoS)
+    def release_resource(self, req: request):
+        # Release resources
+        self.free_resources["uplink"] += req.uplink_allocated
+        self.free_resources["downlink"] += req.downlink_allocated
+        self.free_resources["cpu"] += req.cpu_allocated 
+        self.free_resources["power"] += req.power_allocated
+        
+        return 
     
+    #kiểm tra node là GS
+    def is_GS(self):
+        return self.typename == "ground_station"
+    
+    #Lấy resources còn trống
+    def get_free_resources(self):
+        return (self.free_resources.get("uplink", 0),
+                self.free_resources.get("downlink", 0),
+                self.free_resources.get("cpu", 0),
+                self.free_resources.get("power", 0))
+    
+    #Lấy tổng resources
+    def get_total_resources(self):
+        return (self.resources.get("uplink", 0),
+                self.resources.get("downlink", 0),
+                self.resources.get("cpu", 0),
+                self.resources.get("power", 0))
+        
+    #Add connection (dùng trong mô phỏng)
+    def add_connection(self, conn_info):
+        self.connections.append(conn_info)

@@ -1,0 +1,29 @@
+        # State = request-local view
+        #Including: 
+        #                                                                       INFO SERVICE REQUEST
+        #Type of Service: a vector with 1 at the index of the service type, 0 elsewhere (8) (Vd: 1,0,0,0,0,0,0,0)
+        #current hop / 10 (max 10 hops)
+        #uplink required / max uplink (20 Mbps)
+        #uplink allocated / uplink required normalized
+        #downlink required / max downlink (100 Mbps)
+        #downlink allocated / downlink required normalized
+        #                                                                       INFO LOCATION & QoS
+        #source location (lat, lon, alt) Normalized with formula : (sin(lat), cos(lat), sin(lon), cos(lon), norm_alt = alt/10000000) (clip if >= 1)
+        #reliability required / max reliability (1.0)
+        #current reliability / reliability required normalized
+        #required latency / max latency (500 ms)
+        #latency required / latency currently normalized
+        #priority / max priority (10)
+        #cpu required / max cpu (50)
+        #power required / max power (100)
+        #number of neighbors of current hop / max neighbors (10)
+        #number of requests (users) in range of 2500km / 10000
+        #timemout remaining / estmate timeout (timeout user need) need more consideration
+        #                                                                       TOP 10 NODE NEAREST
+        #top 10-nearest not passed nodes info (distance / (10000km), latency to node / max latency (500 ms), reliability to node / max reliability (1.0), 
+        # uplink available / required uplink, downlink available/required downlink, cpu available / required cpu, 
+        # power available / required power, gs_or_not, timeout/ user estimate timeout, numbers of user in range 2500 km / 10000, distance to nearest GS
+        # , remark of neareast GS, percent_resource_usage) * 10
+        
+        #the last bit will be 1 if the current node is groundstation (done) else 0
+        #neighbor will be (0)*12 if there is not enough neighbor
